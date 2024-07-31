@@ -52,6 +52,7 @@ dependencies {
     //webCrawl
     implementation 'org.jsoup:jsoup:1.14.3'
     implementation 'org.seleniumhq.selenium:selenium-java:4.9.0'
+    implementation group: 'org.seleniumhq.selenium', name: 'selenium-devtools-v127', version: '4.23.0'
 }
 
 tasks.named('bootBuildImage') {
