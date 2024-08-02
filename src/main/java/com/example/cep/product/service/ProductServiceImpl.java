@@ -6,12 +6,11 @@ import com.example.cep.product.repository.ProductRepository;
 import com.example.cep.product.service.interfaces.ProductService;
 import com.example.cep.util.enums.ConvenienceClassification;
 import java.time.Duration;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
-import org.jsoup.nodes.Element;
 import org.jsoup.select.Elements;
 import org.openqa.selenium.By;
 import org.openqa.selenium.WebDriver;
@@ -55,49 +54,47 @@ public class ProductServiceImpl implements ProductService {
 
       Elements productListWraps = document.select("#wrap #contents .relCon .prodListWrap");
 
-      List<Product> products = new ArrayList<>();
+
       int batchSize = 100; // 배치 크기 설정
 
-      for (Element productListWrap : productListWraps) {
-        Elements ulElements = productListWrap.select("ul");
-
-        for (Element ulElement : ulElements) {
-          Elements liElements = ulElement.select("li");
-
-          for (Element liElement : liElements) {
+      List<Product> products = productListWraps.stream()
+          .flatMap(productListWrap -> productListWrap.select("ul").stream())
+          .flatMap(ulElement -> ulElement.select("li").stream())
+          .map(liElement -> {
             String productImg = liElement.select(".prod_img").attr("src");
             String productName = liElement.select(".prod_text .name").text();
             String productPrice = liElement.select(".prod_text .price").text();
             String productBadge1 = liElement.select(".badge .plus1").text();
             String productBadge2 = liElement.select(".badge .plus2").text();
-            Product product = Product.builder()
+            return Product.builder()
                 .productImg(productImg)
                 .productPrice(productPrice)
                 .productName(productName)
                 .eventClassification((productBadge1.isEmpty() ? productBadge2 : productBadge1))
                 .convenienceClassification(ConvenienceClassification.CU)
                 .build();
-            products.add(product);
+          })
+          .collect(Collectors.toList());
 
-            if (products.size() >= batchSize) {
-              productRepository.saveAll(products);
-              products.clear();
-            }
-          }
-        }
-      }
+      saveProductsInBatches(products, batchSize);
 
-      if (!products.isEmpty()) {
-        productRepository.saveAll(products);
-      }
-
-    } catch (Exception e) {
+    }
+    catch (Exception e) {
       e.printStackTrace();
       return new StatusResponseDto(400, "bad_request");
-    } finally {
+    }
+    finally {
       driver.quit();
     }
 
     return new StatusResponseDto(200, "success");
+  }
+
+  private void saveProductsInBatches(List<Product> products, int batchSize) {
+    for (int i = 0; i < products.size(); i += batchSize) {
+      int end = Math.min(i + batchSize, products.size());
+      List<Product> batch = products.subList(i, end);
+      productRepository.saveAll(batch);
+    }
   }
 }
