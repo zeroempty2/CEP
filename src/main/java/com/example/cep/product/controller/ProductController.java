@@ -20,5 +20,11 @@ public class ProductController {
     return ResponseEntity.ok().body(statusResponseDto);
   }
 
+  @GetMapping("/gs")
+  public ResponseEntity<StatusResponseDto> getGsProducts(){
+    StatusResponseDto statusResponseDto = productService.crawlGsProducts();
+    return ResponseEntity.ok().body(statusResponseDto);
+  }
+
 
 }
