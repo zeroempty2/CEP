@@ -118,20 +118,26 @@ public class ProductServiceImpl implements ProductService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList = parsingElements(document);
+          List<Product> productList = parsingElements(document,ConvenienceClassification.GS);
           products.addAll(productList);
+
+          String currentPageSource = driver.getPageSource();
 
           WebElement nextPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div[4]/div[2]/div[3]/div/div/div[4]/div/a[3]")));
           ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageLink);
 
           Thread.sleep(5000);
+
+          String newPageSource = driver.getPageSource();
+          if (currentPageSource.equals(newPageSource)) break;
+
         } catch (Exception e) {
           break;
         }
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingElements(document);
+      List<Product> productList = parsingElements(document,ConvenienceClassification.GS);
       products.addAll(productList);
 
       int batchSize = 100; // 배치 크기 설정
@@ -156,7 +162,7 @@ public class ProductServiceImpl implements ProductService {
     }
   }
 
-  private List<Product> parsingElements(Document document) {
+  private List<Product> parsingElements(Document document,ConvenienceClassification convenienceClassification) {
     Elements productListWraps = document.select("#wrap > div.cntwrap > div.cnt > div.cnt_section.mt50 > div > div > div:nth-child(9)");
     return productListWraps.stream()
         .flatMap(productListWrap -> productListWrap.select("ul").stream())
@@ -171,7 +177,7 @@ public class ProductServiceImpl implements ProductService {
               .productPrice(productPrice)
               .productName(productName)
               .eventClassification(productBadge1)
-              .convenienceClassification(ConvenienceClassification.CU)
+              .convenienceClassification(convenienceClassification)
               .build();
         })
         .collect(Collectors.toList());
