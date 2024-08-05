@@ -26,5 +26,10 @@ public class ProductController {
     return ResponseEntity.ok().body(statusResponseDto);
   }
 
+  @GetMapping("/emart")
+  public ResponseEntity<StatusResponseDto> getEmartProducts(){
+    StatusResponseDto statusResponseDto = productService.crawlEmartProducts();
+    return ResponseEntity.ok().body(statusResponseDto);
+  }
 
 }

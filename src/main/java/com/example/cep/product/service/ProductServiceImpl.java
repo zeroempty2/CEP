@@ -118,7 +118,7 @@ public class ProductServiceImpl implements ProductService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList = parsingElements(document,ConvenienceClassification.GS);
+          List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS);
           products.addAll(productList);
 
           String currentPageSource = driver.getPageSource();
@@ -137,7 +137,63 @@ public class ProductServiceImpl implements ProductService {
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingElements(document,ConvenienceClassification.GS);
+      List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS);
+      products.addAll(productList);
+
+      int batchSize = 100; // 배치 크기 설정
+      saveProductsInBatches(products, batchSize);
+    }
+    catch (Exception e) {
+      e.printStackTrace();
+      return new StatusResponseDto(400, "bad_request");
+    }
+    finally {
+      driver.quit();
+    }
+
+    return new StatusResponseDto(200, "success");
+  }
+
+  @Override
+  @Transactional
+  public StatusResponseDto crawlEmartProducts() {
+    String url = "https://www.emart24.co.kr/goods/event";
+
+    System.setProperty("webdriver.chrome.driver", "C:\\chromedriver_win32\\chromedriver.exe");
+
+    WebDriver driver = new ChromeDriver();
+
+    try {
+      driver.get(url);
+
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
+      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+
+      List<Product> products = new ArrayList<>();
+
+      while (true) {
+        try {
+          Document document = Jsoup.parse(driver.getPageSource());
+          List<Product> productList =  parsingEmartElements(document,ConvenienceClassification.EMART);
+          products.addAll(productList);
+
+          String currentPageSource = driver.getPageSource();
+
+          WebElement nextPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[2]/div/div/div[2]/div[1]/img")));
+          ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageLink);
+
+          Thread.sleep(5000);
+
+          String newPageSource = driver.getPageSource();
+          if (currentPageSource.equals(newPageSource)) break;
+
+        } catch (Exception e) {
+          break;
+        }
+      }
+
+      Document document = Jsoup.parse(driver.getPageSource());
+      List<Product> productList = parsingEmartElements(document,ConvenienceClassification.EMART);
       products.addAll(productList);
 
       int batchSize = 100; // 배치 크기 설정
@@ -162,7 +218,7 @@ public class ProductServiceImpl implements ProductService {
     }
   }
 
-  private List<Product> parsingElements(Document document,ConvenienceClassification convenienceClassification) {
+  private List<Product> parsingGsElements(Document document,ConvenienceClassification convenienceClassification) {
     Elements productListWraps = document.select("#wrap > div.cntwrap > div.cnt > div.cnt_section.mt50 > div > div > div:nth-child(9)");
     return productListWraps.stream()
         .flatMap(productListWrap -> productListWrap.select("ul").stream())
@@ -183,5 +239,30 @@ public class ProductServiceImpl implements ProductService {
         .collect(Collectors.toList());
     }
 
+  private List<Product> parsingEmartElements(Document document,ConvenienceClassification convenienceClassification) {
+    Elements productListWraps = document.select(".viewContentsWrap .mainContents .itemList");
+    return productListWraps.stream()
+        .flatMap(productListWrap -> productListWrap.select(".itemWrap").stream())
+        .map(WrapElement -> {
+          String productImg = WrapElement.select(".itemSpImg img").attr("src");
+          String productName = WrapElement.select(".itemTxtWrap .itemtitle a").text();
+          String productPrice = WrapElement.select(".itemTxtWrap span .price").text();
+          String[] badgeClasses = {"onepl", "twopl", "salepl", "dum", "gola"};
+          String productBadge = java.util.Arrays.stream(badgeClasses)
+              .map(badgeClass -> WrapElement.select(".itemTit span." + badgeClass).text())
+              .filter(text -> !text.isEmpty())
+              .findFirst()
+              .orElse("");
+
+          return Product.builder()
+              .productName(productName)
+              .productPrice(productPrice)
+              .eventClassification(productBadge)
+              .convenienceClassification(convenienceClassification)
+              .productImg(productImg)
+              .build();
+        })
+        .collect(Collectors.toList());
+  }
 
 }
