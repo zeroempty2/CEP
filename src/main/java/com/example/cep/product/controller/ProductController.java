@@ -1,8 +1,13 @@
 package com.example.cep.product.controller;
 
-import com.example.cep.common.StatusResponseDto;
+import com.example.cep.common.PageDto;
+import com.example.cep.product.dto.ProductResponseDto;
 import com.example.cep.product.service.interfaces.ProductService;
+import java.nio.charset.StandardCharsets;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -14,22 +19,28 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
   private final ProductService productService;
 
-  @GetMapping("/cu")
-  public ResponseEntity<StatusResponseDto> getCuProducts(){
-    StatusResponseDto statusResponseDto = productService.crawlCuProducts();
-    return ResponseEntity.ok().body(statusResponseDto);
-  }
+ @GetMapping("/cu")
+ public ResponseEntity<Page<ProductResponseDto>> getCuProducts(PageDto pageDto){
+   Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
+   HttpHeaders headers = new HttpHeaders();
+   headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+   return ResponseEntity.ok().headers(headers).body(productList);
+ }
 
   @GetMapping("/gs")
-  public ResponseEntity<StatusResponseDto> getGsProducts(){
-    StatusResponseDto statusResponseDto = productService.crawlGsProducts();
-    return ResponseEntity.ok().body(statusResponseDto);
+  public ResponseEntity<Page<ProductResponseDto>> getGsProducts(PageDto pageDto){
+    Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(productList);
   }
 
   @GetMapping("/emart")
-  public ResponseEntity<StatusResponseDto> getEmartProducts(){
-    StatusResponseDto statusResponseDto = productService.crawlEmartProducts();
-    return ResponseEntity.ok().body(statusResponseDto);
+  public ResponseEntity<Page<ProductResponseDto>> getEmartProducts(PageDto pageDto){
+    Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(productList);
   }
 
 }
