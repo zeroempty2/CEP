@@ -21,26 +21,26 @@ public class Product extends TimeStamped {
   private Long id;
 
   @Column
-  private String ProductName;
+  private String productName;
 
   @Column
-  private String ProductPrice;
+  private String productPrice;
 
   @Column
-  private String ProductImg;
+  private String productImg;
 
   @Column
-  private String EventClassification;
+  private String eventClassification;
 
   @Column
   private ConvenienceClassification convenienceClassification;
 
   @Builder
   public Product(String productName,String productPrice,String productImg,String eventClassification,ConvenienceClassification convenienceClassification) {
-    this.ProductName = productName;
-    this.ProductPrice = productPrice;
-    this.ProductImg = productImg;
-    this.EventClassification = eventClassification;
+    this.productName = productName;
+    this.productPrice = productPrice;
+    this.productImg = productImg;
+    this.eventClassification = eventClassification;
     this.convenienceClassification = convenienceClassification;
   }
 
