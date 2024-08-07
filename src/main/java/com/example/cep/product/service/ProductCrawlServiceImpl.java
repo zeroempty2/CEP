@@ -58,7 +58,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       Elements productListWraps = document.select("#wrap #contents .relCon .prodListWrap");
 
 
-      int batchSize = 100; // 배치 크기 설정
+      int batchSize = 250; // 배치 크기 설정
 
       List<Product> products = productListWraps.stream()
           .flatMap(productListWrap -> productListWrap.select("ul").stream())
@@ -140,7 +140,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS);
       products.addAll(productList);
 
-      int batchSize = 100; // 배치 크기 설정
+      int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
     }
     catch (Exception e) {
@@ -196,7 +196,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       List<Product> productList = parsingEmartElements(document,ConvenienceClassification.EMART);
       products.addAll(productList);
 
-      int batchSize = 100; // 배치 크기 설정
+      int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
     }
     catch (Exception e) {

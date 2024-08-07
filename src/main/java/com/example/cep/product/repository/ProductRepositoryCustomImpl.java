@@ -16,7 +16,7 @@ public class ProductRepositoryCustomImpl implements ProductRepositoryCustom {
   public void saveAll(List<Product> products) {
     for (int i = 0; i < products.size(); i++) {
       entityManager.persist(products.get(i));
-      if (i % 100 == 0) {
+      if (i % 250 == 0) {
         entityManager.flush();
         entityManager.clear();
       }
