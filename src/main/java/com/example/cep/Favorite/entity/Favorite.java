@@ -1,5 +1,6 @@
 package com.example.cep.Favorite.entity;
 
+import com.example.cep.util.TimeStamped;
 import com.example.cep.util.enums.ConvenienceClassification;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 @Entity
-public class Favorite {
+public class Favorite extends TimeStamped {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private Long id;
@@ -38,6 +39,10 @@ public class Favorite {
     this.userId = userId;
   }
 
+  //메서드
+  public boolean isOwner(Long userId){
+    return this.userId.equals(userId);
+  }
 
 
 }
