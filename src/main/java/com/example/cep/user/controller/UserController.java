@@ -4,6 +4,7 @@ package com.example.cep.user.controller;
 
 import com.example.cep.common.StatusResponseDto;
 import com.example.cep.security.UserDetailsImpl;
+import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
 import com.example.cep.user.dto.UserRequestDto;
@@ -30,14 +31,17 @@ public class UserController {
 
   @PostMapping("/signUp")
   public StatusResponseDto signUp(@RequestBody UserRequestDto userRequestDto){
-
    return userService.signUp(userRequestDto);
   }
 
   @PostMapping("/login")
   public StatusResponseDto login(HttpServletResponse httpServletResponse,@RequestBody UserLoginRequestDto userLoginRequestDto){
-
    return userService.login(httpServletResponse,userLoginRequestDto);
+  }
+
+  @PostMapping("/check")
+  public ResponseEntity<Boolean> userInfoDuplicationCheck(@RequestBody UserInfoDuplicationCheckDto userInfoDuplicationCheckDto){
+    return ResponseEntity.ok().body(userService.userInfoDuplicationCheck(userInfoDuplicationCheckDto));
   }
 
   @GetMapping("/profile")

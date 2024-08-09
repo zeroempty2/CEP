@@ -3,6 +3,7 @@ package com.example.cep.user.service;
 
 
 import com.example.cep.common.StatusResponseDto;
+import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
 import com.example.cep.user.dto.UserRequestDto;
@@ -79,5 +80,14 @@ public class UserServiceImpl implements UserService{
   public UserProfileResponseDto getUserProfile(Long userId) {
     User user = findUserByUserId(userId);
     return new UserProfileResponseDto(user.getNickName(),user.getEmail());
+  }
+
+  @Override
+  @Transactional(readOnly = true)
+  public Boolean userInfoDuplicationCheck(
+      UserInfoDuplicationCheckDto userInfoDuplicationCheckDto) {
+    return !userRepository.existsByValidationContents(
+        userInfoDuplicationCheckDto.validationContents(),
+        userInfoDuplicationCheckDto.validationClassification());
   }
 }
