@@ -13,11 +13,10 @@ public interface UserService {
 
   StatusResponseDto signUp(UserRequestDto userRequestDto); //회원가입
 
-  StatusResponseDto login(HttpServletResponse httpServletResponse,
-      UserLoginRequestDto userLoginRequestDto);
+  StatusResponseDto login(HttpServletResponse httpServletResponse, UserLoginRequestDto userLoginRequestDto);
 
   User findUserByUserId(Long userId);
 
-UserProfileResponseDto getUserProfile(Long userId);
+  UserProfileResponseDto getUserProfile(Long userId);
 
 }

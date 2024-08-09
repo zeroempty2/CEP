@@ -34,26 +34,18 @@ public class User extends TimeStamped {
   @Column(nullable = false)
   private String password;
 
-  @Column(nullable = false)
+  @Column
+  private String email;
+
+  @Column
   private String nickName;
 
-  @Column
-  private String phoneNumber;
-
-  @Column
-  private String aboutMe;
-
-  @Column
-  private String profileUrl;
-
   @Builder
-  public User(String username, String password, String nickName, String phoneNumber, String aboutMe, String profileUrl, UserRoleEnum role){
+  public User(String username, String password, String nickName, String email, UserRoleEnum role){
     this.username = username;
     this.password = password;
     this.nickName = nickName;
-    this.phoneNumber = phoneNumber;
-    this.aboutMe = aboutMe;
-    this.profileUrl = profileUrl;
+    this.email =  email;
     this.role = role;
   }
 

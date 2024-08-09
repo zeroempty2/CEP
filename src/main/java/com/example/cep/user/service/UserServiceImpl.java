@@ -26,7 +26,7 @@ public class UserServiceImpl implements UserService{
   private final PasswordEncoder passwordEncoder;
   private final JwtUtil jwtUtil;
 
-  @Override //Transactional 넣어주세요
+  @Override
   @Transactional
   public StatusResponseDto signUp(UserRequestDto userRequestDto) {
 
@@ -37,10 +37,8 @@ public class UserServiceImpl implements UserService{
     User user = User.builder()
         .username(userRequestDto.username())
         .password(encodedPwd)
-        .phoneNumber(userRequestDto.phoneNumber())
-        .aboutMe(userRequestDto.aboutMe())
         .nickName(userRequestDto.nickName())
-        .profileUrl(userRequestDto.profileUrl())
+        .email(userRequestDto.email())
         .role(UserRoleEnum.CUSTOMER)
         .build();
 
@@ -80,6 +78,6 @@ public class UserServiceImpl implements UserService{
   @Transactional(readOnly = true)
   public UserProfileResponseDto getUserProfile(Long userId) {
     User user = findUserByUserId(userId);
-    return new UserProfileResponseDto(user.getNickName(),user.getPhoneNumber(),user.getAboutMe(),user.getProfileUrl());
+    return new UserProfileResponseDto(user.getNickName(),user.getEmail());
   }
 }
