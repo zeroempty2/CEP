@@ -1,6 +1,11 @@
 package com.example.cep.user.dto;
 
-public record UserRequestDto (String username, String password, String nickName, String email, String profileUrl){
+import com.example.cep.util.customAnnotaion.validateEmail.ValidateEmail;
+import com.example.cep.util.customAnnotaion.validateNickname.ValidateNickname;
+import com.example.cep.util.customAnnotaion.validatePassword.ValidatePassword;
+import com.example.cep.util.customAnnotaion.validateUsername.ValidateUsername;
+
+public record UserRequestDto (@ValidateUsername String username, @ValidatePassword String password, @ValidateNickname String nickName, @ValidateEmail String email, String profileUrl){
 
 
 }
