@@ -58,6 +58,7 @@ public class SecurityConfig{
         )
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
+            .requestMatchers("/favorite/**").hasRole("CUSTOMER")
             .requestMatchers("/**").permitAll()
             .anyRequest().authenticated()
         )  .exceptionHandling(exceptionHandling -> exceptionHandling
