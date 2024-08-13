@@ -40,7 +40,7 @@ public class UserServiceImpl implements UserService{
         .password(encodedPwd)
         .nickName(userRequestDto.nickName())
         .email(userRequestDto.email())
-        .role(UserRoleEnum.CUSTOMER)
+        .role(UserRoleEnum.USER)
         .build();
 
     userRepository.save(user);
