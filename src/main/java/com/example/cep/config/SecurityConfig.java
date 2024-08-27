@@ -59,7 +59,8 @@ public class SecurityConfig{
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/favorite/**").hasRole("CUSTOMER")
-            .requestMatchers("/**").permitAll()
+            .requestMatchers("/products/**").permitAll()
+            .requestMatchers("/products/crawl/**").permitAll()
             .anyRequest().authenticated()
         )  .exceptionHandling(exceptionHandling -> exceptionHandling
             .authenticationEntryPoint(customAuthenticationEntryPoint) // 인증 실패 시 처리할 핸들러 지정
