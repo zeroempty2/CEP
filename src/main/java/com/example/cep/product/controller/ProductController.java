@@ -19,6 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
   private final ProductService productService;
 
+  @GetMapping
+  public ResponseEntity<Page<ProductResponseDto>> getAllProducts(PageDto pageDto){
+    Page<ProductResponseDto> productList = productService.getAllProducts(pageDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(productList);
+  }
+
  @GetMapping("/cu")
  public ResponseEntity<Page<ProductResponseDto>> getCuProducts(PageDto pageDto){
    Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
@@ -29,7 +37,7 @@ public class ProductController {
 
   @GetMapping("/gs")
   public ResponseEntity<Page<ProductResponseDto>> getGsProducts(PageDto pageDto){
-    Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
+    Page<ProductResponseDto> productList = productService.getGsProducts(pageDto);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(productList);
@@ -37,7 +45,7 @@ public class ProductController {
 
   @GetMapping("/emart")
   public ResponseEntity<Page<ProductResponseDto>> getEmartProducts(PageDto pageDto){
-    Page<ProductResponseDto> productList = productService.getCuProducts(pageDto);
+    Page<ProductResponseDto> productList = productService.getEmartProducts(pageDto);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(productList);

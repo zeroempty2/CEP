@@ -20,6 +20,32 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
   private final JPAQueryFactory jpaQueryFactory;
 
   @Override
+  public Page<ProductResponseDto> findAllProducts(PageDto pageDto) {
+    Pageable pageable = pageDto.toPageable();
+
+    List<ProductResponseDto> list =  jpaQueryFactory
+        .select(
+            Projections.bean(
+                ProductResponseDto.class
+                ,product.id.as("productId")
+                ,product.productName
+                ,product.productPrice
+                ,product.productImg
+                ,product.eventClassification
+            )
+        )
+        .from(product)
+        .orderBy(product.createdAt.desc())
+        .limit(pageable.getPageSize())
+        .offset(pageable.getOffset())
+        .fetch();
+
+    long totalSize = countQuery().fetch().get(0);
+
+    return PageableExecutionUtils.getPage(list, pageable, () -> totalSize);
+  }
+
+  @Override
   public Page<ProductResponseDto> pagingProducts(PageDto pageDto,ConvenienceClassification convenienceClassification) {
     Pageable pageable = pageDto.toPageable();
 

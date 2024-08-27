@@ -6,5 +6,6 @@ import com.example.cep.util.enums.ConvenienceClassification;
 import org.springframework.data.domain.Page;
 
 public interface ProductRepositoryQuery {
+  Page<ProductResponseDto> findAllProducts(PageDto pageDto);
   Page<ProductResponseDto> pagingProducts(PageDto pageDto, ConvenienceClassification convenienceClassification);
 }

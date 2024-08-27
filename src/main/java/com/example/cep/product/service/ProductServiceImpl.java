@@ -18,6 +18,11 @@ public class ProductServiceImpl implements ProductService {
   private final ProductRepository productRepository;
 
   @Override
+  public Page<ProductResponseDto> getAllProducts(PageDto pageDto) {
+    return  productRepository.findAllProducts(pageDto);
+  }
+
+  @Override
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getCuProducts(PageDto pageDto) {
     return productRepository.pagingProducts(pageDto, ConvenienceClassification.CU);
