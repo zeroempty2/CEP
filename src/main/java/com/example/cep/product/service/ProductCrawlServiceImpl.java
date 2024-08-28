@@ -4,7 +4,6 @@ import com.example.cep.common.StatusResponseDto;
 import com.example.cep.product.entity.Product;
 import com.example.cep.product.repository.ProductRepository;
 import com.example.cep.product.service.interfaces.ProductCrawlService;
-import com.example.cep.product.service.interfaces.ProductService;
 import com.example.cep.util.enums.ConvenienceClassification;
 import java.time.Duration;
 import java.util.ArrayList;
@@ -33,21 +32,24 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   @Transactional
   public StatusResponseDto crawlCuProducts() {
     String url = "https://cu.bgfretail.com/event/plus.do";
+    //크롬 드라이버 경로지정
     System.setProperty("webdriver.chrome.driver", "C:\\chromedriver_win32\\chromedriver.exe");
 
     WebDriver driver = new ChromeDriver();
 
-    try {
+    try{
       driver.get(url);
 
       WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));  //첫 페이지 로드 대기시간
 
       while (true) {
         try {
+          //더보기 버튼 클릭
           WebElement moreButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".prodListBtn .prodListBtn-w")));
           moreButton.click();
-          Thread.sleep(5000);
+          //버튼 클릭 후 대기시간
+          Thread.sleep(10000);
         } catch (Exception e) {
           break;
         }
@@ -58,7 +60,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       Elements productListWraps = document.select("#wrap #contents .relCon .prodListWrap");
 
 
-      int batchSize = 250; // 배치 크기 설정
+
 
       List<Product> products = productListWraps.stream()
           .flatMap(productListWrap -> productListWrap.select("ul").stream())
@@ -79,6 +81,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           })
           .collect(Collectors.toList());
 
+      int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
 
     }
