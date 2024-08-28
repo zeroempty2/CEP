@@ -11,8 +11,8 @@ import lombok.Setter;
 @Setter
 public class ProductResponseDto {
   private Long productId;
-  private String ProductName;
-  private String ProductPrice;
-  private String ProductImg;
-  private String EventClassification;
+  private String productName;
+  private String productPrice;
+  private String productImg;
+  private String eventClassification;
 }
