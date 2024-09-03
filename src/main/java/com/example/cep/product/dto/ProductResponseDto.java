@@ -1,5 +1,6 @@
 package com.example.cep.product.dto;
 
+import com.example.cep.util.enums.ConvenienceClassification;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -15,4 +16,5 @@ public class ProductResponseDto {
   private String productPrice;
   private String productImg;
   private String eventClassification;
+  private ConvenienceClassification convenienceClassification;
 }
