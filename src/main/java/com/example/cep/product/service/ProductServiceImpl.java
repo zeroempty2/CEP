@@ -2,6 +2,7 @@ package com.example.cep.product.service;
 
 
 import com.example.cep.common.PageDto;
+import com.example.cep.product.dto.ProductRequestDto;
 import com.example.cep.product.dto.ProductResponseDto;
 import com.example.cep.product.repository.ProductRepository;
 import com.example.cep.product.service.interfaces.ProductService;
@@ -18,6 +19,14 @@ public class ProductServiceImpl implements ProductService {
   private final ProductRepository productRepository;
 
   @Override
+  @Transactional(readOnly = true)
+  public Page<ProductResponseDto> getProducts(PageDto pageDto,
+      ProductRequestDto productRequestDto) {
+    return productRepository.findProducts(pageDto,productRequestDto);
+  }
+
+  @Override
+  @Transactional(readOnly = true)
   public Page<ProductResponseDto> getAllProducts(PageDto pageDto) {
     return  productRepository.findAllProducts(pageDto);
   }

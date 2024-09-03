@@ -1,6 +1,7 @@
 package com.example.cep.product.controller;
 
 import com.example.cep.common.PageDto;
+import com.example.cep.product.dto.ProductRequestDto;
 import com.example.cep.product.dto.ProductResponseDto;
 import com.example.cep.product.service.interfaces.ProductService;
 import java.nio.charset.StandardCharsets;
@@ -18,6 +19,14 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/products")
 public class ProductController {
   private final ProductService productService;
+
+  @GetMapping
+  public ResponseEntity<Page<ProductResponseDto>> getProducts(PageDto pageDto, ProductRequestDto productRequestDto){
+    Page<ProductResponseDto> productList = productService.getProducts(pageDto,productRequestDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(productList);
+  }
 
   @GetMapping
   public ResponseEntity<Page<ProductResponseDto>> getAllProducts(PageDto pageDto){
