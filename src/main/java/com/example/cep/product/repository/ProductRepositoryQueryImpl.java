@@ -55,7 +55,7 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
         )
         .from(product)
         .where(builder)
-        .orderBy(product.createdAt.desc())
+        .orderBy(product.createdAt.desc(),product.id.asc())
         .limit(pageable.getPageSize())
         .offset(pageable.getOffset());
 
