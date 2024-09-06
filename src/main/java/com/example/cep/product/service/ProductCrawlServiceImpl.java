@@ -121,7 +121,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS);
+          List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS25);
           products.addAll(productList);
 
           String currentPageSource = driver.getPageSource();
@@ -140,7 +140,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS);
+      List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS25);
       products.addAll(productList);
 
       int batchSize = 250; // 배치 크기 설정
@@ -177,7 +177,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList =  parsingEmartElements(document,ConvenienceClassification.EMART);
+          List<Product> productList =  parsingEmartElements(document,ConvenienceClassification.EMART24);
           products.addAll(productList);
 
           String currentPageSource = driver.getPageSource();
@@ -196,7 +196,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingEmartElements(document,ConvenienceClassification.EMART);
+      List<Product> productList = parsingEmartElements(document,ConvenienceClassification.EMART24);
       products.addAll(productList);
 
       int batchSize = 250; // 배치 크기 설정
@@ -250,7 +250,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           String productImg = WrapElement.select(".itemSpImg img").attr("src");
           String productName = WrapElement.select(".itemTxtWrap .itemtitle a").text();
           String productPrice = WrapElement.select(".itemTxtWrap span .price").text();
-          String[] badgeClasses = {"onepl", "twopl", "salepl", "dum", "gola"};
+          String[] badgeClasses = {"onepl", "twopl", "sale", "dum", "gola"};
           String productBadge = java.util.Arrays.stream(badgeClasses)
               .map(badgeClass -> WrapElement.select(".itemTit span." + badgeClass).text())
               .filter(text -> !text.isEmpty())
@@ -265,6 +265,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
               .productImg(productImg)
               .build();
         })
+        .filter(product -> !product.getEventClassification().equals("gola") && !product.getEventClassification().isEmpty())
         .collect(Collectors.toList());
   }
 }
