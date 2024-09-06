@@ -11,6 +11,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,15 +22,15 @@ import org.springframework.web.bind.annotation.RestController;
 public class ProductController {
   private final ProductService productService;
 
-  @GetMapping
-  public ResponseEntity<Page<ProductResponseDto>> getProducts(PageDto pageDto, ProductRequestDto productRequestDto){
-    Page<ProductResponseDto> productList = productService.getProducts(pageDto,productRequestDto);
+  @PostMapping
+  public ResponseEntity<Page<ProductResponseDto>> getProducts(PageDto pageDto, @RequestBody ProductRequestDto productRequestDto) {
+    Page<ProductResponseDto> productList = productService.getProducts(pageDto, productRequestDto);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(productList);
   }
 
-  @GetMapping
+  @GetMapping("/all")
   public ResponseEntity<Page<ProductResponseDto>> getAllProducts(PageDto pageDto){
     Page<ProductResponseDto> productList = productService.getAllProducts(pageDto);
     HttpHeaders headers = new HttpHeaders();
