@@ -40,12 +40,12 @@ public class ProductServiceImpl implements ProductService {
   @Override
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getGsProducts(PageDto pageDto) {
-    return productRepository.pagingProducts(pageDto, ConvenienceClassification.GS);
+    return productRepository.pagingProducts(pageDto, ConvenienceClassification.GS25);
   }
 
   @Override
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getEmartProducts(PageDto pageDto) {
-    return productRepository.pagingProducts(pageDto, ConvenienceClassification.EMART);
+    return productRepository.pagingProducts(pageDto, ConvenienceClassification.EMART24);
   }
 }
