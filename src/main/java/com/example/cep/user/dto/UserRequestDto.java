@@ -5,7 +5,7 @@ import com.example.cep.util.customAnnotaion.validateNickname.ValidateNickname;
 import com.example.cep.util.customAnnotaion.validatePassword.ValidatePassword;
 import com.example.cep.util.customAnnotaion.validateUsername.ValidateUsername;
 
-public record UserRequestDto (@ValidateUsername String username, @ValidatePassword String password, @ValidateNickname String nickName, @ValidateEmail String email, String profileUrl){
+public record UserRequestDto (@ValidateUsername String username, @ValidatePassword String password, @ValidateEmail String email){
 
 
 }

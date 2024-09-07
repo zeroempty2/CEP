@@ -37,14 +37,10 @@ public class User extends TimeStamped {
   @Column
   private String email;
 
-  @Column
-  private String nickName;
-
   @Builder
   public User(String username, String password, String nickName, String email, UserRoleEnum role){
     this.username = username;
     this.password = password;
-    this.nickName = nickName;
     this.email =  email;
     this.role = role;
   }
