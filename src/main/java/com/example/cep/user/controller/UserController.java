@@ -8,6 +8,7 @@ import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
 import com.example.cep.user.dto.UserRequestDto;
+import com.example.cep.user.dto.UsernameDuplicationCheckDto;
 import com.example.cep.user.service.UserService;
 import jakarta.servlet.http.HttpServletResponse;
 import java.nio.charset.StandardCharsets;
@@ -44,12 +45,17 @@ public class UserController {
     return ResponseEntity.ok().body(userService.userInfoDuplicationCheck(userInfoDuplicationCheckDto));
   }
 
-  @GetMapping("/profile")
-  public ResponseEntity<UserProfileResponseDto> getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails){
-    UserProfileResponseDto userProfileResponseDto = userService.getUserProfile(userDetails.getUserId());
-    HttpHeaders headers = new HttpHeaders();
-    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-    return ResponseEntity.ok().headers(headers).body(userProfileResponseDto);
+  @PostMapping("/check/name")
+  public ResponseEntity<Boolean> usernameDuplicationCheck(@RequestBody UsernameDuplicationCheckDto usernameDuplicationCheckDto){
+    return ResponseEntity.ok().body(userService.usernameDuplicationCheck(usernameDuplicationCheckDto));
   }
+
+//  @GetMapping("/profile")
+//  public ResponseEntity<UserProfileResponseDto> getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails){
+//    UserProfileResponseDto userProfileResponseDto = userService.getUserProfile(userDetails.getUserId());
+//    HttpHeaders headers = new HttpHeaders();
+//    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+//    return ResponseEntity.ok().headers(headers).body(userProfileResponseDto);
+//  }
 
 }

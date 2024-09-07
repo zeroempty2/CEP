@@ -7,6 +7,7 @@ import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
 import com.example.cep.user.dto.UserRequestDto;
+import com.example.cep.user.dto.UsernameDuplicationCheckDto;
 import com.example.cep.user.entity.User;
 import com.example.cep.user.repository.UserRepository;
 import com.example.cep.util.JwtUtil;
@@ -38,7 +39,6 @@ public class UserServiceImpl implements UserService{
     User user = User.builder()
         .username(userRequestDto.username())
         .password(encodedPwd)
-        .nickName(userRequestDto.nickName())
         .email(userRequestDto.email())
         .role(UserRoleEnum.USER)
         .build();
@@ -75,12 +75,12 @@ public class UserServiceImpl implements UserService{
 
   }
 
-  @Override
-  @Transactional(readOnly = true)
-  public UserProfileResponseDto getUserProfile(Long userId) {
-    User user = findUserByUserId(userId);
-    return new UserProfileResponseDto(user.getNickName(),user.getEmail());
-  }
+//  @Override
+//  @Transactional(readOnly = true)
+//  public UserProfileResponseDto getUserProfile(Long userId) {
+//    User user = findUserByUserId(userId);
+//    return new UserProfileResponseDto(user.getEmail());
+//  }
 
   @Override
   @Transactional(readOnly = true)
@@ -89,5 +89,10 @@ public class UserServiceImpl implements UserService{
     return !userRepository.existsByValidationContents(
         userInfoDuplicationCheckDto.validationContents(),
         userInfoDuplicationCheckDto.validationClassification());
+  }
+
+  @Override
+  public Boolean usernameDuplicationCheck(UsernameDuplicationCheckDto usernameDuplicationCheckDto) {
+    return userRepository.existsByUsername(usernameDuplicationCheckDto.username());
   }
 }

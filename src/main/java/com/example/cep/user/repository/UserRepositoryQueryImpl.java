@@ -25,5 +25,13 @@ public class UserRepositoryQueryImpl implements UserRepositoryQuery{
         .setHint("org.hibernate.readOnly", true)
         .fetchFirst() != null;
   }
+
+  @Override
+  public boolean existsByUsername(String username) {
+    return jpaQueryFactory.from(user)
+        .where(user.username.eq(username))
+        .setHint("org.hibernate.readOnly", true)
+        .fetchFirst() != null;
+  }
 }
 
