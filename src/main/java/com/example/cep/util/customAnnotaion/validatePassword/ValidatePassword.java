@@ -15,7 +15,7 @@ import java.lang.annotation.Target;
 @Constraint(validatedBy = PasswordValidator.class)
 @Documented
 public @interface ValidatePassword {
-  String message() default "소문자와 대문자 특수문자 그리고 숫자를 포함하여 8자 이상 15자 이하";
+  String message() default "소문자와 대문자, 숫자를 포함하여 8자 이상 15자 이하";
 
   Class<?>[] groups() default { };
 
