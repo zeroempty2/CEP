@@ -3,6 +3,7 @@ package com.example.cep.user.service;
 
 
 import com.example.cep.common.StatusResponseDto;
+import com.example.cep.user.dto.UpdatePasswordDto;
 import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
@@ -64,7 +65,7 @@ public class UserServiceImpl implements UserService{
     httpServletResponse.addHeader(JwtUtil.AUTHORIZATION_HEADER, accessToken); //header나 cookie는 백에서 발급, local 저장은 프론트에서 가능
 
 
-    return new StatusResponseDto(201,"success!");
+    return new StatusResponseDto(200,"success!");
   }
 
   @Override
@@ -75,12 +76,12 @@ public class UserServiceImpl implements UserService{
 
   }
 
-//  @Override
-//  @Transactional(readOnly = true)
-//  public UserProfileResponseDto getUserProfile(Long userId) {
-//    User user = findUserByUserId(userId);
-//    return new UserProfileResponseDto(user.getEmail());
-//  }
+  @Override
+  @Transactional(readOnly = true)
+  public UserProfileResponseDto getUserProfile(Long userId) {
+    User user = findUserByUserId(userId);
+    return new UserProfileResponseDto(user.getUsername(),user.getEmail());
+  }
 
   @Override
   @Transactional(readOnly = true)
@@ -94,5 +95,15 @@ public class UserServiceImpl implements UserService{
   @Override
   public Boolean usernameDuplicationCheck(UsernameDuplicationCheckDto usernameDuplicationCheckDto) {
     return userRepository.existsByUsername(usernameDuplicationCheckDto.username());
+  }
+
+  @Override
+  @Transactional
+  public StatusResponseDto updatePassword(Long userId, UpdatePasswordDto updatePasswordDto) {
+    User user = findUserByUserId(userId);
+    if(user.checkPassword(updatePasswordDto.oldPassword())) return new StatusResponseDto(400,"Bad Request");
+    String encodedPwd = passwordEncoder.encode(updatePasswordDto.newPassword());
+    user.updatePassword(encodedPwd);
+    return new StatusResponseDto(200,"success!");
   }
 }

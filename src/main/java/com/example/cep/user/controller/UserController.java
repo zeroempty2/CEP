@@ -4,6 +4,7 @@ package com.example.cep.user.controller;
 
 import com.example.cep.common.StatusResponseDto;
 import com.example.cep.security.UserDetailsImpl;
+import com.example.cep.user.dto.UpdatePasswordDto;
 import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
@@ -19,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -50,12 +52,16 @@ public class UserController {
     return ResponseEntity.ok().body(userService.usernameDuplicationCheck(usernameDuplicationCheckDto));
   }
 
-//  @GetMapping("/profile")
-//  public ResponseEntity<UserProfileResponseDto> getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails){
-//    UserProfileResponseDto userProfileResponseDto = userService.getUserProfile(userDetails.getUserId());
-//    HttpHeaders headers = new HttpHeaders();
-//    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
-//    return ResponseEntity.ok().headers(headers).body(userProfileResponseDto);
-//  }
+  @GetMapping("/profile")
+  public ResponseEntity<UserProfileResponseDto> getUserProfile(@AuthenticationPrincipal UserDetailsImpl userDetails){
+    UserProfileResponseDto userProfileResponseDto = userService.getUserProfile(userDetails.getUserId());
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(userProfileResponseDto);
+  }
 
+  @PutMapping("/update/password")
+  public ResponseEntity<StatusResponseDto> updatePassword(@AuthenticationPrincipal UserDetailsImpl userDetails,@RequestBody UpdatePasswordDto updatePasswordDto){
+    return  ResponseEntity.ok().body(userService.updatePassword(userDetails.getUserId(),updatePasswordDto));
+  }
 }

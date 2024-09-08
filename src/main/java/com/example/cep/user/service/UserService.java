@@ -3,6 +3,7 @@ package com.example.cep.user.service;
 
 
 import com.example.cep.common.StatusResponseDto;
+import com.example.cep.user.dto.UpdatePasswordDto;
 import com.example.cep.user.dto.UserInfoDuplicationCheckDto;
 import com.example.cep.user.dto.UserLoginRequestDto;
 import com.example.cep.user.dto.UserProfileResponseDto;
@@ -18,10 +19,12 @@ public interface UserService {
   StatusResponseDto login(HttpServletResponse httpServletResponse, UserLoginRequestDto userLoginRequestDto);
 
   User findUserByUserId(Long userId);
-//
-//  UserProfileResponseDto getUserProfile(Long userId);
+
+  UserProfileResponseDto getUserProfile(Long userId);
 
   Boolean userInfoDuplicationCheck(UserInfoDuplicationCheckDto userInfoDuplicationCheckDto);
 
   Boolean usernameDuplicationCheck(UsernameDuplicationCheckDto usernameDuplicationCheckDto);
+
+  StatusResponseDto updatePassword(Long userId,UpdatePasswordDto updatePasswordDto);
 }
