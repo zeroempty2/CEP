@@ -9,7 +9,7 @@ public class PasswordValidator implements ConstraintValidator<ValidatePassword, 
   @Override
   public boolean isValid(String value, ConstraintValidatorContext context) {
     if(value == null) return false;
-    Pattern pattern = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d]{8,15}$");
+    Pattern pattern = Pattern.compile("^(?=.*[A-Za-z])(?=.*\\d)[A-Za-z\\d@$!%*#?&]{8,15}$");
     Matcher matcher = pattern.matcher(value);
     return matcher.matches();
   }
