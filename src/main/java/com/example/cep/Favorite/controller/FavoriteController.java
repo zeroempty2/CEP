@@ -33,6 +33,13 @@ public class FavoriteController {
     return ResponseEntity.ok().body(statusResponseDto);
   }
 
+  @PostMapping("/request")
+  public ResponseEntity<StatusResponseDto> requestFavorite(@RequestBody FavoriteRequestDto requestDto,@AuthenticationPrincipal
+  UserDetailsImpl userDetails){
+    StatusResponseDto statusResponseDto = favoriteService.requestFavorite(requestDto, userDetails.getUserId());
+    return ResponseEntity.ok().body(statusResponseDto);
+  }
+
   @GetMapping
   public ResponseEntity<Page<FavoriteResponseDto>> getFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,
       PageDto pageDto) {

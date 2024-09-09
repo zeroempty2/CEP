@@ -15,4 +15,5 @@ public class FavoriteResponseDto {
   private String productName;
   private String productImg;
   private ConvenienceClassification convenienceClassification;
+  private String eventClassification;
 }

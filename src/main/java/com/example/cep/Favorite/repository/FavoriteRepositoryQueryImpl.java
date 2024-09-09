@@ -5,8 +5,10 @@ import static com.example.cep.Favorite.entity.QFavorite.favorite;
 
 import com.example.cep.Favorite.dto.FavoriteResponseDto;
 import com.example.cep.common.PageDto;
+import com.example.cep.util.enums.ConvenienceClassification;
 import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Wildcard;
+import com.querydsl.jpa.impl.JPADeleteClause;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.List;
@@ -35,6 +37,20 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
     return PageableExecutionUtils.getPage(list, pageable, () -> totalSize);
   }
 
+  @Override
+  public void deleteFavoritesByProductNameAndMore(Long userId, String productName,
+      ConvenienceClassification convenienceClassification, String eventClassification) {
+    jpaQueryFactory
+        .delete(favorite)
+        .where(favorite.userId.eq(userId)
+            .and(favorite.productName.eq(productName))
+            .and(favorite.eventClassification.eq(eventClassification))
+            .and(favorite.convenienceClassification.eq(convenienceClassification))
+        )
+        .execute();
+  }
+
+
   private JPAQuery<FavoriteResponseDto> query(Long userId) {
     return jpaQueryFactory
         .select(
@@ -44,6 +60,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
                 ,favorite.productName
                 ,favorite.productImg
                 ,favorite.convenienceClassification
+                ,favorite.eventClassification
             )
         )
         .from(favorite)

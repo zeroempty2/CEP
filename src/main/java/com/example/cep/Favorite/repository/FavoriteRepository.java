@@ -8,4 +8,5 @@ public interface FavoriteRepository extends Repository<Favorite, Long>,FavoriteR
   void save(Favorite favorite);
   void deleteById(Long id);
   Optional<Favorite> findById(Long id);
+  Optional<Favorite> findByProductName(String productName);
 }
