@@ -8,6 +8,7 @@ import com.example.cep.util.enums.ConvenienceClassification;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import org.jsoup.Jsoup;
@@ -242,7 +243,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
         .collect(Collectors.toList());
   }
 
-  private List<Product> parsingEmartElements(Document document,ConvenienceClassification convenienceClassification) {
+  private List<Product> parsingEmartElements(Document document, ConvenienceClassification convenienceClassification) {
     Elements productListWraps = document.select(".viewContentsWrap .mainContents .itemList");
     return productListWraps.stream()
         .flatMap(productListWrap -> productListWrap.select(".itemWrap").stream())
@@ -250,12 +251,21 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           String productImg = WrapElement.select(".itemSpImg img").attr("src");
           String productName = WrapElement.select(".itemTxtWrap .itemtitle a").text();
           String productPrice = WrapElement.select(".itemTxtWrap span .price").text();
-          String[] badgeClasses = {"onepl", "twopl", "sale", "dum", "gola"};
+          String[] badgeClasses = {"onepl", "twopl", "sale", "dum"};
+
+          // Find the badge class that matches
           String productBadge = java.util.Arrays.stream(badgeClasses)
               .map(badgeClass -> WrapElement.select(".itemTit span." + badgeClass).text())
               .filter(text -> !text.isEmpty())
               .findFirst()
               .orElse("");
+
+          if (productBadge.isEmpty()) {
+            return null;
+          }
+
+          if (productBadge.equals("1 + 1"))  productBadge = "1+1";
+          else if (productBadge.equals("2 + 1"))  productBadge = "2+1";
 
           return Product.builder()
               .productName(productName)
@@ -265,7 +275,8 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
               .productImg(productImg)
               .build();
         })
-        .filter(product -> !product.getEventClassification().equals("gola") && !product.getEventClassification().isEmpty())
+        .filter(Objects::nonNull)
         .collect(Collectors.toList());
   }
+
 }
