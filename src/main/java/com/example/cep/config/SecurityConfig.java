@@ -58,7 +58,7 @@ public class SecurityConfig{
         )
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
-            .requestMatchers("/favorite/**").hasRole("CUSTOMER")
+            .requestMatchers("/favorite/**").hasRole("USER")
             .requestMatchers("/products/**").permitAll()
             .requestMatchers("/products/crawl/**").permitAll()
             .requestMatchers("/users/**").permitAll()
