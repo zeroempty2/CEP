@@ -1,5 +1,6 @@
 package com.example.cep.Favorite.controller;
 
+import com.example.cep.Favorite.dto.FavoriteCheckResponseDto;
 import com.example.cep.Favorite.dto.FavoriteRequestDto;
 import com.example.cep.Favorite.dto.FavoriteResponseDto;
 import com.example.cep.Favorite.service.interfaces.FavoriteService;
@@ -48,6 +49,16 @@ public class FavoriteController {
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(favorites);
   }
+
+  @GetMapping("/check")
+  public ResponseEntity<Page<FavoriteCheckResponseDto>> getCheckingFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,
+      PageDto pageDto) {
+    Page<FavoriteCheckResponseDto> favorites = favoriteService.getCheckingFavorite(userDetails.getUserId(),pageDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(favorites);
+  }
+
 
   @DeleteMapping
   public ResponseEntity<StatusResponseDto> deleteFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,Long favoriteId) {

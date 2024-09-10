@@ -1,5 +1,6 @@
 package com.example.cep.Favorite.service;
 
+import com.example.cep.Favorite.dto.FavoriteCheckResponseDto;
 import com.example.cep.Favorite.dto.FavoriteRequestDto;
 import com.example.cep.Favorite.dto.FavoriteResponseDto;
 import com.example.cep.Favorite.entity.Favorite;
@@ -81,6 +82,12 @@ public class FavoriteServiceImpl implements FavoriteService {
     }
 
     return addFavorite(requestDto, userId);
+  }
+
+  @Override
+  @Transactional
+  public Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto) {
+    return favoriteRepository.getFavoritesAndCheck(userId,pageDto);
   }
 
 

@@ -4,9 +4,11 @@ package com.example.cep.product.service;
 import com.example.cep.common.PageDto;
 import com.example.cep.product.dto.ProductRequestDto;
 import com.example.cep.product.dto.ProductResponseDto;
+import com.example.cep.product.entity.Product;
 import com.example.cep.product.repository.ProductRepository;
 import com.example.cep.product.service.interfaces.ProductService;
 import com.example.cep.util.enums.ConvenienceClassification;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.stereotype.Service;
@@ -47,5 +49,11 @@ public class ProductServiceImpl implements ProductService {
   @Transactional(readOnly = true)
   public Page<ProductResponseDto> getEmartProducts(PageDto pageDto) {
     return productRepository.pagingProducts(pageDto, ConvenienceClassification.EMART24);
+  }
+
+  @Override
+  public List<Product> findByProductNameInAndEventClassificationInAndConvenienceClassificationIn(List<String> productNames, List<String> eventClassifications,
+      List<ConvenienceClassification> convenienceClassifications) {
+    return productRepository.findByProductNameInAndEventClassificationInAndConvenienceClassificationIn(productNames,eventClassifications,convenienceClassifications);
   }
 }
