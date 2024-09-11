@@ -3,6 +3,7 @@ package com.example.cep.Favorite.controller;
 import com.example.cep.Favorite.dto.FavoriteCheckResponseDto;
 import com.example.cep.Favorite.dto.FavoriteRequestDto;
 import com.example.cep.Favorite.dto.FavoriteResponseDto;
+import com.example.cep.Favorite.dto.FavoriteSearchRequestDto;
 import com.example.cep.Favorite.service.interfaces.FavoriteService;
 import com.example.cep.common.PageDto;
 import com.example.cep.common.StatusResponseDto;
@@ -50,10 +51,10 @@ public class FavoriteController {
     return ResponseEntity.ok().headers(headers).body(favorites);
   }
 
-  @GetMapping("/check")
+  @PostMapping("/check")
   public ResponseEntity<Page<FavoriteCheckResponseDto>> getCheckingFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,
-      PageDto pageDto) {
-    Page<FavoriteCheckResponseDto> favorites = favoriteService.getCheckingFavorite(userDetails.getUserId(),pageDto);
+      PageDto pageDto, @RequestBody FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    Page<FavoriteCheckResponseDto> favorites = favoriteService.getCheckingFavorite(userDetails.getUserId(),pageDto,favoriteSearchRequestDto);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(favorites);

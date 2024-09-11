@@ -3,6 +3,7 @@ package com.example.cep.Favorite.service;
 import com.example.cep.Favorite.dto.FavoriteCheckResponseDto;
 import com.example.cep.Favorite.dto.FavoriteRequestDto;
 import com.example.cep.Favorite.dto.FavoriteResponseDto;
+import com.example.cep.Favorite.dto.FavoriteSearchRequestDto;
 import com.example.cep.Favorite.entity.Favorite;
 import com.example.cep.Favorite.repository.FavoriteRepository;
 import com.example.cep.Favorite.service.interfaces.FavoriteService;
@@ -86,8 +87,9 @@ public class FavoriteServiceImpl implements FavoriteService {
 
   @Override
   @Transactional
-  public Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto) {
-    return favoriteRepository.getFavoritesAndCheck(userId,pageDto);
+  public Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto,
+      FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    return favoriteRepository.getFavoritesAndCheck(userId,pageDto,favoriteSearchRequestDto);
   }
 
 
