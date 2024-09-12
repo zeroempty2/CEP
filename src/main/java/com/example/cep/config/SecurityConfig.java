@@ -43,8 +43,6 @@ public class SecurityConfig{
     return (web) -> web.ignoring()
         .requestMatchers(new AntPathRequestMatcher("/h2-console/**"))
         .requestMatchers(PathRequest.toStaticResources().atCommonLocations());
-//        .requestMatchers(PathRequest.toH2Console())
-//        .requestMatchers("/users/sign");
 
   }
 
@@ -60,7 +58,8 @@ public class SecurityConfig{
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/favorite/**").hasRole("USER")
             .requestMatchers("/products/**").permitAll()
-            .requestMatchers("/products/crawl/**").permitAll()
+            .requestMatchers("/crawl/**").permitAll()
+            .requestMatchers("/products/crawl/**").hasRole("ADMINISTRATOR")
             .requestMatchers("/users/**").permitAll()
             .anyRequest().authenticated()
         )  .exceptionHandling(exceptionHandling -> exceptionHandling
