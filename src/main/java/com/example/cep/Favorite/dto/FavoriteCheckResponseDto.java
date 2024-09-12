@@ -15,6 +15,8 @@ public class FavoriteCheckResponseDto {
   private String productName;
   private String productImg;
   private String productPrice;
+  private String dumName;
+  private String dumImg;
   private ConvenienceClassification convenienceClassification;
   private String eventClassification;
   private Boolean isSale;

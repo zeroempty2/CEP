@@ -165,6 +165,8 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
                 fav.getProductName(),
                 fav.getProductImg(),
                 "가격정보 없음",
+                "",
+                "",
                 fav.getConvenienceClassification(),
                 fav.getEventClassification(),
                 false
@@ -190,6 +192,8 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
                 fav.getProductName(),
                 fav.getProductImg(),
                 matchingProduct.getProductPrice(),
+                matchingProduct.getDumName(),
+                matchingProduct.getDumImg(),
                 fav.getConvenienceClassification(),
                 fav.getEventClassification(),
                 true
@@ -215,6 +219,8 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
             fav.getProductName(),
             fav.getProductImg(),
             matchingProduct != null ? matchingProduct.getProductPrice() : "가격정보 없음",
+            matchingProduct != null ? matchingProduct.getDumName() : "",
+            matchingProduct  != null ? matchingProduct.getDumImg() : "",
             fav.getConvenienceClassification(),
             fav.getEventClassification(),
             matchingProduct != null // 일치하는 product가 있으면 isSale = true
