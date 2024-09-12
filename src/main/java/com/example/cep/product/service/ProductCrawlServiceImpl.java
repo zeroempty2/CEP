@@ -77,11 +77,14 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
                 .productPrice(productPrice)
                 .productName(productName)
                 .eventClassification((productBadge1.isEmpty() ? productBadge2 : productBadge1))
+                .dumName("")
+                .dumImg("")
                 .convenienceClassification(ConvenienceClassification.CU)
                 .build();
           })
           .collect(Collectors.toList());
 
+      productRepository.deleteAllByConvenienceClassification(ConvenienceClassification.CU);
       int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
 
@@ -122,7 +125,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS25);
+          List<Product> productList = parsingGsElements(document);
           products.addAll(productList);
 
           String currentPageSource = driver.getPageSource();
@@ -141,9 +144,10 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingGsElements(document,ConvenienceClassification.GS25);
+      List<Product> productList = parsingGsElements(document);
       products.addAll(productList);
 
+      productRepository.deleteAllByConvenienceClassification(ConvenienceClassification.GS25);
       int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
     }
@@ -178,7 +182,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       while (true) {
         try {
           Document document = Jsoup.parse(driver.getPageSource());
-          List<Product> productList =  parsingEmartElements(document,ConvenienceClassification.EMART24);
+          List<Product> productList =  parsingEmartElements(document);
           products.addAll(productList);
 
           String currentPageSource = driver.getPageSource();
@@ -197,9 +201,10 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       }
 
       Document document = Jsoup.parse(driver.getPageSource());
-      List<Product> productList = parsingEmartElements(document,ConvenienceClassification.EMART24);
+      List<Product> productList = parsingEmartElements(document);
       products.addAll(productList);
 
+      productRepository.deleteAllByConvenienceClassification(ConvenienceClassification.EMART24);
       int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
     }
@@ -222,7 +227,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
     }
   }
 
-  private List<Product> parsingGsElements(Document document,ConvenienceClassification convenienceClassification) {
+  private List<Product> parsingGsElements(Document document) {
     Elements productListWraps = document.select("#wrap > div.cntwrap > div.cnt > div.cnt_section.mt50 > div > div > div:nth-child(9)");
     return productListWraps.stream()
         .flatMap(productListWrap -> productListWrap.select("ul").stream())
@@ -230,20 +235,24 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
         .map(liElement -> {
           String productImg = liElement.select(".prod_box .img img").attr("src");
           String productName = liElement.select(".prod_box .tit").text();
-          String productPrice = liElement.select(".prod_box .price .cost").text();
+          String productPrice = liElement.select(".prod_box .price .cost").text().split("원")[0];
           String productBadge1 = liElement.select(".prod_box .flag_box .flg01 span").text();
+          String dumName = liElement.select(".prod_box .dum_txt .name").text();
+          String dumImg = liElement.select(".prod_box .dum_prd .img img").attr("src");
           return Product.builder()
               .productImg(productImg)
               .productPrice(productPrice)
               .productName(productName)
               .eventClassification(productBadge1)
-              .convenienceClassification(convenienceClassification)
+              .dumName(dumName)
+              .dumImg(dumImg)
+              .convenienceClassification(ConvenienceClassification.GS25)
               .build();
         })
         .collect(Collectors.toList());
   }
 
-  private List<Product> parsingEmartElements(Document document, ConvenienceClassification convenienceClassification) {
+  private List<Product> parsingEmartElements(Document document) {
     Elements productListWraps = document.select(".viewContentsWrap .mainContents .itemList");
     return productListWraps.stream()
         .flatMap(productListWrap -> productListWrap.select(".itemWrap").stream())
@@ -252,8 +261,8 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           String productName = WrapElement.select(".itemTxtWrap .itemtitle a").text();
           String productPrice = WrapElement.select(".itemTxtWrap span .price").text();
           String[] badgeClasses = {"onepl", "twopl", "sale", "dum"};
+          String dumImg = WrapElement.select(".dumgift img").attr("src");
 
-          // Find the badge class that matches
           String productBadge = java.util.Arrays.stream(badgeClasses)
               .map(badgeClass -> WrapElement.select(".itemTit span." + badgeClass).text())
               .filter(text -> !text.isEmpty())
@@ -271,8 +280,10 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
               .productName(productName)
               .productPrice(productPrice)
               .eventClassification(productBadge)
-              .convenienceClassification(convenienceClassification)
+              .convenienceClassification(ConvenienceClassification.EMART24)
               .productImg(productImg)
+              .dumImg(dumImg)
+              .dumName("")
               .build();
         })
         .filter(Objects::nonNull)
