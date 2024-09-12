@@ -49,6 +49,8 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.productName
                 ,product.productPrice
                 ,product.productImg
+                ,product.dumImg
+                ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
             )
@@ -85,6 +87,8 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.productName
                 ,product.productPrice
                 ,product.productImg
+                ,product.dumImg
+                ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
             )
@@ -125,6 +129,8 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.productName
                 ,product.productPrice
                 ,product.productImg
+                ,product.dumImg
+                ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
             )

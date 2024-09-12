@@ -11,4 +11,5 @@ public interface ProductRepository  extends Repository<Product, Long>, ProductRe
   void saveAll(List<Product> products);
   List<Product> findByProductNameInAndEventClassificationInAndConvenienceClassificationIn(List<String> productNames, List<String> eventClassifications,
       List<ConvenienceClassification> convenienceClassifications);
+  void deleteAllByConvenienceClassification(ConvenienceClassification convenienceClassification);
 }
