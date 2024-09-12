@@ -15,6 +15,8 @@ public class ProductResponseDto {
   private String productName;
   private String productPrice;
   private String productImg;
+  private String dumName;
+  private String dumPrice;
   private String eventClassification;
   private ConvenienceClassification convenienceClassification;
 }
