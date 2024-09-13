@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.openqa.selenium.chrome.ChromeOptions;
+import org.springframework.beans.factory.annotation.Value;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.select.Elements;
@@ -27,22 +29,39 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProductCrawlServiceImpl implements ProductCrawlService {
+
+  @Value("${chrome.drive.location}")
+  private String location;
+
   private final ProductRepository productRepository;
 
   @Override
   @Transactional
   public StatusResponseDto crawlCuProducts() {
     String url = "https://cu.bgfretail.com/event/plus.do";
-    //크롬 드라이버 경로지정
-    System.setProperty("webdriver.chrome.driver", "C:\\chromedriver_win32\\chromedriver.exe");
 
-    WebDriver driver = new ChromeDriver();
+    ChromeOptions options = new ChromeOptions();
+
+    options.addArguments("--headless");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--disable-gpu"); // GPU 가속 비활성화
+    options.addArguments("--remote-debugging-port=9222");// 디버깅 포트 지정
+
+    if(location.equals("/home/ec2-user/chromedriver-linux64/chromedriver")){
+      System.setProperty("webdriver.chrome.logfile", "/home/ec2-user/chromedriver-linux64/chromedriver.log");
+      System.setProperty("webdriver.chrome.verboseLogging", "true");
+    }
+
+    System.setProperty("webdriver.chrome.driver", location);
+
+    WebDriver driver = new ChromeDriver(options);
 
     try{
       driver.get(url);
 
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));  //첫 페이지 로드 대기시간
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(180));
+      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));  //첫 페이지 로드 대기시간
 
       while (true) {
         try {
@@ -50,7 +69,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           WebElement moreButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector(".prodListBtn .prodListBtn-w")));
           moreButton.click();
           //버튼 클릭 후 대기시간
-          Thread.sleep(10000);
+          Thread.sleep(15000);
         } catch (Exception e) {
           break;
         }
@@ -105,20 +124,33 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   public StatusResponseDto crawlGsProducts() {
     String url = "http://gs25.gsretail.com/gscvs/ko/products/event-goods";
 
-    System.setProperty("webdriver.chrome.driver", "C:\\chromedriver_win32\\chromedriver.exe");
+    ChromeOptions options = new ChromeOptions();
 
-    WebDriver driver = new ChromeDriver();
+    options.addArguments("--headless");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--disable-gpu"); // GPU 가속 비활성화
+    options.addArguments("--remote-debugging-port=9222");// 디버깅 포트 지정
+
+    if(location.equals("/home/ec2-user/chromedriver-linux64/chromedriver")){
+      System.setProperty("webdriver.chrome.logfile", "/home/ec2-user/chromedriver-linux64/chromedriver.log");
+      System.setProperty("webdriver.chrome.verboseLogging", "true");
+    }
+
+    System.setProperty("webdriver.chrome.driver", location);
+
+    WebDriver driver = new ChromeDriver(options);
 
     try {
       driver.get(url);
 
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(180));
+      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));
 
       WebElement totalButton = driver.findElement(By.linkText("전체"));
       wait.until(ExpectedConditions.elementToBeClickable(totalButton)).click();
 
-      Thread.sleep(10000);
+      Thread.sleep(15000);
 
       List<Product> products = new ArrayList<>();
 
@@ -133,7 +165,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           WebElement nextPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[1]/div[4]/div[2]/div[3]/div/div/div[4]/div/a[3]")));
           ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageLink);
 
-          Thread.sleep(5000);
+          Thread.sleep(15000);
 
           String newPageSource = driver.getPageSource();
           if (currentPageSource.equals(newPageSource)) break;
@@ -167,15 +199,28 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   public StatusResponseDto crawlEmartProducts() {
     String url = "https://www.emart24.co.kr/goods/event";
 
-    System.setProperty("webdriver.chrome.driver", "C:\\chromedriver_win32\\chromedriver.exe");
+    ChromeOptions options = new ChromeOptions();
 
-    WebDriver driver = new ChromeDriver();
+    options.addArguments("--headless");
+    options.addArguments("--no-sandbox");
+    options.addArguments("--disable-dev-shm-usage");
+    options.addArguments("--disable-gpu"); // GPU 가속 비활성화
+    options.addArguments("--remote-debugging-port=9222");// 디버깅 포트 지정
+
+    if(location.equals("/home/ec2-user/chromedriver-linux64/chromedriver")){
+      System.setProperty("webdriver.chrome.logfile", "/home/ec2-user/chromedriver-linux64/chromedriver.log");
+      System.setProperty("webdriver.chrome.verboseLogging", "true");
+    }
+
+    System.setProperty("webdriver.chrome.driver", location);
+
+    WebDriver driver = new ChromeDriver(options);
 
     try {
       driver.get(url);
 
-      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(120));
-      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(120));
+      WebDriverWait wait = new WebDriverWait(driver, Duration.ofSeconds(180));
+      driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));
 
       List<Product> products = new ArrayList<>();
 
@@ -190,7 +235,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           WebElement nextPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[2]/div/div/div[2]/div[1]/img")));
           ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageLink);
 
-          Thread.sleep(5000);
+          Thread.sleep(15000);
 
           String newPageSource = driver.getPageSource();
           if (currentPageSource.equals(newPageSource)) break;
