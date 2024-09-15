@@ -17,6 +17,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ScheduledTasks {
   private final ProductCrawlController productCrawlController;
+  private final ProductController productController;
   @Scheduled(cron = "0 0 0 * * ?", zone = "Asia/Seoul")
   public void runApiWithAdministratorRole() {
     UserDetails adminUser = getAdminUser();
@@ -40,6 +41,7 @@ public class ScheduledTasks {
   }
 
   public void callApi() {
+    productController.deleteAllProducts();
     productCrawlController.crawlCuProducts();
     productCrawlController.crawlGsProducts();
     productCrawlController.crawlEmartProducts();
