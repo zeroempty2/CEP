@@ -56,4 +56,19 @@ public class ProductServiceImpl implements ProductService {
       List<ConvenienceClassification> convenienceClassifications) {
     return productRepository.findByProductNameInAndEventClassificationInAndConvenienceClassificationIn(productNames,eventClassifications,convenienceClassifications);
   }
+
+  @Override
+  @Transactional
+  public void deleteAllByConvenienceClassification(
+      ConvenienceClassification convenienceClassification) {
+    productRepository.deleteAllByConvenienceClassification(convenienceClassification);
+  }
+
+  @Override
+  @Transactional
+  public void deleteAllProduct() {
+    deleteAllByConvenienceClassification(ConvenienceClassification.CU);
+    deleteAllByConvenienceClassification(ConvenienceClassification.GS25);
+    deleteAllByConvenienceClassification(ConvenienceClassification.EMART24);
+  }
 }
