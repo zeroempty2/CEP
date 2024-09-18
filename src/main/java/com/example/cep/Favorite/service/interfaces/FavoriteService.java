@@ -17,7 +17,7 @@ public interface FavoriteService {
   Page<FavoriteResponseDto> getFavorites(Long userId, PageDto pageDto);
   Boolean deleteFavorite(Long userId,Long favoriteId);
   Favorite findFavoriteById(Long favoriteId);
-  Favorite findFavoriteByProductName(String productName);
+  Favorite findFavoriteByProductName(String productName,Long userId);
   StatusResponseDto requestFavorite(FavoriteRequestDto requestDto, Long userId);
   Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto);

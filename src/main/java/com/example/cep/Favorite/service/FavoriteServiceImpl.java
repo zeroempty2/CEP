@@ -58,8 +58,8 @@ public class FavoriteServiceImpl implements FavoriteService {
   }
 
   @Override
-  public Favorite findFavoriteByProductName(String productName) {
-    return favoriteRepository.findByProductName(productName)
+  public Favorite findFavoriteByProductName(String productName,Long userId) {
+    return favoriteRepository.findByProductNameAndUserId(productName,userId)
         .orElseThrow(
             () -> new IllegalArgumentException("존재하지 않습니다."));
   }
@@ -68,7 +68,7 @@ public class FavoriteServiceImpl implements FavoriteService {
   @Transactional
   public StatusResponseDto requestFavorite(FavoriteRequestDto requestDto, Long userId) {
     userService.findUserByUserId(userId);
-    Optional<Favorite> favoriteOptional = favoriteRepository.findByProductName(requestDto.productName());
+    Optional<Favorite> favoriteOptional = favoriteRepository.findByProductNameAndUserId(requestDto.productName(),userId);
     if (favoriteOptional.isPresent()) {
       Favorite favorite = favoriteOptional.get();
 
@@ -78,7 +78,7 @@ public class FavoriteServiceImpl implements FavoriteService {
       if (isClassificationMatch) {
         favoriteRepository.deleteFavoritesByProductNameAndMore(userId, requestDto.productName(),
             requestDto.convenienceClassification(), requestDto.eventClassification());
-        return new StatusResponseDto(200, "Success");
+        return new StatusResponseDto(200, "delete_success");
       }
     }
 
