@@ -41,7 +41,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
             .offset(pageable.getOffset())
             .fetch();
 
-    long totalSize = countQuery().fetch().get(0);
+    long totalSize = countQuery(userId).fetch().get(0);
 
     return PageableExecutionUtils.getPage(list, pageable, () -> totalSize);
   }
@@ -119,7 +119,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
 
     List<FavoriteCheckResponseDto> favoriteCheckList = matchingProduct(products,favorites,favoriteSearchRequestDto.inProgress());
 
-    long totalSize = countQuery().fetch().get(0);
+    long totalSize = countQuery(userId).fetch().get(0);
 
     return PageableExecutionUtils.getPage(favoriteCheckList, pageable, () -> totalSize);
   }
@@ -141,9 +141,9 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
         .where(favorite.userId.eq(userId));
 
   }
-  private JPAQuery<Long> countQuery() {
+  private JPAQuery<Long> countQuery(Long userId) {
     return jpaQueryFactory.select(Wildcard.count)
-        .from(favorite);
+        .from(favorite).where(favorite.userId.eq(userId));
   }
 
   private List<FavoriteCheckResponseDto> matchingProduct(List<Product> products, List<FavoriteResponseDto> favorites,String inProgress) {
