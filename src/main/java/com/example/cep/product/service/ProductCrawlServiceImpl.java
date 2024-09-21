@@ -66,7 +66,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       e.printStackTrace();
       return new StatusResponseDto(400, "bad_request");
     } finally {
-      driver.manage().deleteAllCookies();
       driver.quit();
     }
     System.out.println("CU 1+1 finish");
@@ -79,7 +78,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       e.printStackTrace();
       return new StatusResponseDto(400, "bad_request");
     } finally {
-      driver.manage().deleteAllCookies();
       driver.quit();
     }
     System.out.println("CU 2+1 finish");
@@ -94,7 +92,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
     driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));  // 페이지 로드 대기시간
     WebElement button = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#contents > div.depth3Lnb > ul > li." + eventTypeCssSelector)));
     button.click();
-    Thread.sleep(10000);
+    Thread.sleep(11000);
     int page = 0;
     LocalDateTime start = LocalDateTime.now();
     while (true) {
@@ -102,7 +100,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
         WebElement moreButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#contents > div.relCon > div > div > div.prodListBtn-w")));
         moreButton.click();
         page++;
-        Thread.sleep(8000);
+        Thread.sleep(9000);
       } catch (Exception e) {
         break;
       }
@@ -144,7 +142,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
 
       WebElement totalButton = driver.findElement(By.linkText("전체"));
       wait.until(ExpectedConditions.elementToBeClickable(totalButton)).click();
-      System.out.println("click");
       Thread.sleep(10000);
       LocalDateTime start = LocalDateTime.now();
       List<Product> products = new ArrayList<>();
