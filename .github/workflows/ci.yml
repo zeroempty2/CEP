@@ -1,0 +1,43 @@
+name: CI for Spring Boot
+
+# 메인브랜치에 push나 pull_request시 실행
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    # GitHub-hosted 러너 환경 정의 (Ubuntu 환경 사용)
+    runs-on: ubuntu-latest
+
+    # 사용할 JDK 버전 설정
+    strategy:
+      matrix:
+        java-version: [17, 11]
+
+    steps:
+    # 코드 체크아웃
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    # JDK 설치
+    - name: Set up JDK ${{ matrix.java-version }}
+      uses: actions/setup-java@v2
+      with:
+        java-version: ${{ matrix.java-version }}
+
+    # 프로젝트 빌드 및 테스트
+    - name: Build with Gradle
+      run: ./gradlew build --no-daemon
+
+    # 테스트 리포트 저장 (optional)
+    - name: Archive test results
+      if: ${{ always() }}
+      uses: actions/upload-artifact@v2
+      with:
+        name: test-results
+        path: build/test-results/test
