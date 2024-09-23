@@ -40,10 +40,4 @@ jobs:
         DB_SOURCE_USERNAME: ${{ secrets.DB_SOURCE_USERNAME }}
         DB_SOURCE_PASSWORD: ${{ secrets.DB_SOURCE_PASSWORD }}
         
-    # 테스트 리포트 저장 (optional)
-    - name: Archive test results
-      if: ${{ always() }}
-      uses: actions/upload-artifact@v2
-      with:
-        name: test-results
-        path: build/test-results/test
+
