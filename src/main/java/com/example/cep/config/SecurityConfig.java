@@ -60,6 +60,7 @@ public class SecurityConfig{
             .requestMatchers("/products/**").permitAll()
             .requestMatchers("/crawl/**").permitAll()
             .requestMatchers("/products/crawl/**").hasRole("ADMINISTRATOR")
+            .requestMatchers("/admin/**").hasRole("ADMINISTRATOR")
             .requestMatchers("/users/**").permitAll()
             .anyRequest().authenticated()
         )  .exceptionHandling(exceptionHandling -> exceptionHandling
