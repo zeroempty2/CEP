@@ -1,6 +1,11 @@
 package com.example.cep.util.scheduler;
 
 
+import com.example.cep.security.UserDetailsImpl;
+import com.example.cep.security.UserDetailsServiceImpl;
+import com.example.cep.util.JwtUtil;
+import com.example.cep.util.enums.UserRoleEnum;
+import io.jsonwebtoken.Claims;
 import jakarta.servlet.Filter;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.FilterConfig;
@@ -13,11 +18,14 @@ import java.io.IOException;
 
 
 public class TimeBasedFilter implements Filter {
-
+  private final JwtUtil jwtUtil;
   private final AccessControl accessControl;
+  private final UserDetailsServiceImpl userDetailsService;
 
-  public TimeBasedFilter(AccessControl accessControl) {
+  public TimeBasedFilter(AccessControl accessControl, UserDetailsServiceImpl userDetailsService, JwtUtil jwtUtil) {
     this.accessControl = accessControl;
+    this.userDetailsService = userDetailsService;
+    this.jwtUtil = jwtUtil;
   }
 
   @Override
@@ -28,11 +36,24 @@ public class TimeBasedFilter implements Filter {
   @Override
   public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
       throws IOException, ServletException {
-
     HttpServletRequest httpRequest = (HttpServletRequest) request;
+    String token = jwtUtil.resolveToken(httpRequest);
+    UserDetailsImpl userDetails;
+    UserRoleEnum role = UserRoleEnum.USER;
+
+    if(token != null){
+      if(jwtUtil.validateToken(token)){
+        Claims info = jwtUtil.getUserInfoFromToken(token);
+        userDetails =  userDetailsService.loadUserDetailByUsername(info.getSubject());
+        if(userDetails != null) {
+          if (userDetails.getUser().getRole() != null) role = userDetails.getUser().getRole();
+        }
+      }
+    }
+
     String requestURI = httpRequest.getRequestURI();
 
-    if (requestURI.startsWith("/products/crawl/")) {
+    if (requestURI.startsWith("/products/crawl/") || role == UserRoleEnum.ADMINISTRATOR) {
       chain.doFilter(request, response);
     } else {
       if (!accessControl.isAccessAllowed()) {
@@ -47,4 +68,6 @@ public class TimeBasedFilter implements Filter {
   public void destroy() {
 
   }
+
+
 }
