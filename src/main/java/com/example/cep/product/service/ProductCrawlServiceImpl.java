@@ -92,7 +92,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
     driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));  // 페이지 로드 대기시간
     WebElement button = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#contents > div.depth3Lnb > ul > li." + eventTypeCssSelector)));
     button.click();
-    Thread.sleep(11000);
+    Thread.sleep(10000);
     int page = 0;
     LocalDateTime start = LocalDateTime.now();
     while (true) {
@@ -100,7 +100,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
         WebElement moreButton = wait.until(ExpectedConditions.elementToBeClickable(By.cssSelector("#contents > div.relCon > div > div > div.prodListBtn-w")));
         moreButton.click();
         page++;
-        Thread.sleep(9000);
+        Thread.sleep(5000);
       } catch (Exception e) {
         break;
       }
