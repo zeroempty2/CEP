@@ -57,6 +57,7 @@ public class SecurityConfig{
         .authorizeHttpRequests(authorize -> authorize
             .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
             .requestMatchers("/favorite/**").hasRole("USER")
+            .requestMatchers("/favorite/**").hasRole("ADMINISTRATOR")
             .requestMatchers("/products/**").permitAll()
             .requestMatchers("/crawl/**").permitAll()
             .requestMatchers("/products/crawl/**").hasRole("ADMINISTRATOR")
