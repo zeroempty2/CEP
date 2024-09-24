@@ -21,4 +21,12 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     return new UserDetailsImpl(user);
   }
+
+  public UserDetailsImpl loadUserDetailByUsername(String username) throws UsernameNotFoundException {
+    User user = userRepository.findByUsername(username)
+        .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+    return new UserDetailsImpl(user);
+  }
+
 }
