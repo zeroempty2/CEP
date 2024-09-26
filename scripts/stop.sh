@@ -1,18 +1,17 @@
-#!/bin/bash
-
-APP_NAME="cep-0.0.2.jar"
-PROJECT_ROOT="/home/ec2-user/app"
-
-DEPLOY_LOG="$PROJECT_ROOT/deploy.log"
-
-# 현재 실행 중인 프로세스의 PID 탐색
-PID=$(pgrep -f $APP_NAME)
-
-# PID가 존재하는 경우, 프로세스를 종료.
-if [ -n "$PID" ]; then
-  echo "Stopping application with PID: $PID"
-  kill -9 $PID
-  echo "Application stopped successfully."
-else
-  echo "No application is currently running."
-fi
+##!/bin/bash
+#
+#CONTAINER_NAME="cep-app"
+#DEPLOY_LOG="/home/ec2-user/app/deploy.log"
+#TIME_NOW=$(date +%c)
+#
+## 실행 중인 컨테이너 확인 및 종료
+#EXISTING_CONTAINER=$(docker ps -q -f name=$CONTAINER_NAME)
+#
+#if [ -n "$EXISTING_CONTAINER" ]; then
+#  echo "$TIME_NOW > 실행 중인 컨테이너 $CONTAINER_NAME 중지" >> $DEPLOY_LOG
+#  docker stop $CONTAINER_NAME
+#  docker rm $CONTAINER_NAME
+#  echo "$TIME_NOW > 컨테이너 중지 및 삭제 완료" >> $DEPLOY_LOG
+#else
+#  echo "$TIME_NOW > 실행 중인 컨테이너가 없습니다." >> $DEPLOY_LOG
+#fi
