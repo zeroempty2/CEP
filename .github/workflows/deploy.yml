@@ -3,7 +3,7 @@ name: Deploy to Amazon EC2 using Docker
 on:
   push:
     branches:
-      - main
+      - docker
 
 env:
   AWS_REGION: ap-northeast-2
@@ -66,6 +66,8 @@ jobs:
         run: |
           ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem -p 2200 ec2-user@52.79.209.72 << 'EOF'
             sudo systemctl start docker || echo "Docker is already running."
-            cd /home/ec2-user/app
-            ./start.sh
+            docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
+            docker stop ${{ env.EC2_CONTAINER_NAME }} || true
+            docker rm ${{ env.EC2_CONTAINER_NAME }} || true
+            docker run -d --name ${{ env.EC2_CONTAINER_NAME }} -p 8080:8080 -e DB_SOURCE_URL=${{ secrets.DB_SOURCE_URL }} -e DB_SOURCE_USERNAME=${{ secrets.DB_SOURCE_USERNAME }} -e DB_SOURCE_PASSWORD=${{ secrets.DB_SOURCE_PASSWORD }}  ${{ env.DOCKER_IMAGE_NAME }}:latest
           EOF
