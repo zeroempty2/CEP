@@ -6,3 +6,9 @@ WORKDIR /app
 
 # 3. JAR 파일 복사
 COPY build/libs/*.jar app.jar
+
+# 4. 스크립트 파일 복사
+COPY bash.sh /app/bash.sh
+
+# 5. 애플리케이션 실행
+ENTRYPOINT ["java", "-jar", "app.jar"]
