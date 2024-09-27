@@ -60,5 +60,9 @@ WORKDIR /app
 # 빌드 단계에서 생성된 JAR 파일 복사
 COPY build/libs/*.jar app.jar
 
+<<<<<<< HEAD
 # 애플리케이션 실행
+=======
+# 4. 애플리케이션 실행
+>>>>>>> 00916666f4afd7ad4ddfba8ce795245a8c18e879
 ENTRYPOINT ["java", "-jar", "app.jar"]
