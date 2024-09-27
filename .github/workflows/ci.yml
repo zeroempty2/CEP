@@ -27,7 +27,6 @@ jobs:
       - name: Build with Gradle
         run: ./gradlew build --no-daemon
 
-      # 조건: 빌드가 성공한 경우에만 CD 워크플로우 트리거
       - name: Trigger CD workflow
         if: ${{ success() }}  # 빌드가 성공한 경우에만 실행
         run: |
