@@ -2,11 +2,11 @@ name: Deploy to Amazon EC2 using Docker
 
 on:
   workflow_run:
-    workflows: ["CI for Spring Boot"]  # CI 워크플로우 이름
-    types:
-      - completed  # CI 워크플로우 완료 시 트리거
-    branches:
-      - main    # main 브랜치에서만 트리거
+    # workflows: ["CI for Spring Boot"]  # CI 워크플로우 이름
+    # types:
+    #   - completed  # CI 워크플로우 완료 시 트리거
+    # branches:
+    #   - main    # main 브랜치에서만 트리거
   workflow_dispatch: 
 
 env:
