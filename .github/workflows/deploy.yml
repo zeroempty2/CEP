@@ -69,6 +69,7 @@ jobs:
           sudo mv ~/ec2_key.pem ~/.ssh/ec2_key.pem
           sudo chown runner:runner ~/.ssh/ec2_key.pem
           sudo chmod 600 ~/.ssh/ec2_key.pem
+          
       # (7) EC2에 SSH로 연결하여 Docker 컨테이너 배포
       - name: Deploy to EC2
         run: |
