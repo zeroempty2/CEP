@@ -49,10 +49,6 @@ RUN unzip /tmp/chromedriver-linux64.zip -d /usr/local/bin/ && \
 # chromedriver의 경로를 PATH에 추가
 ENV PATH="/usr/local/bin/chromedriver-linux64:${PATH}"
 
-# 크롬과 크롬 드라이버 버전 확인 (디버깅용)
-RUN google-chrome --version
-RUN chromedriver --version
-
 # 기본 작업 디렉토리 설정 (필요에 따라 설정 가능)
 WORKDIR /app
 
