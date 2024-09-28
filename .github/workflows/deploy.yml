@@ -74,11 +74,14 @@ jobs:
       - name: Deploy to EC2
         run: |
           ssh -vvv -o StrictHostKeyChecking=no -i ~/.ssh/ec2_key.pem -p 2200 ec2-user@52.79.209.72 << 'EOF'
+            echo "Cleaning up unused Docker resources..."
+            sudo docker system prune --all --force
+            sudo docker volume prune --force
             sudo systemctl start docker || echo "Docker is already running."
-            docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
-            docker stop ${{ env.EC2_CONTAINER_NAME }} || true
-            docker rm ${{ env.EC2_CONTAINER_NAME }} || true
-            docker run -d --name ${{ env.EC2_CONTAINER_NAME }} -p 8080:8080 \
+            sudo docker pull ${{ env.DOCKER_IMAGE_NAME }}:latest
+            sudo docker stop ${{ env.EC2_CONTAINER_NAME }} || true
+            sudo docker rm ${{ env.EC2_CONTAINER_NAME }} || true
+            sudo docker run -d --name ${{ env.EC2_CONTAINER_NAME }} -p 8080:8080 \
               -e AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
               -e AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
               -e DB_SOURCE_URL=${{ secrets.DB_SOURCE_URL }} \
