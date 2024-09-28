@@ -12,7 +12,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 ENV TZ=Asia/Seoul
 
 # 필수 의존성 설치
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --no-install-recommends \
     libappindicator3-1 \
     libxss1 \
     libasound2 \
@@ -33,19 +33,18 @@ RUN mkdir -p ~/.aws && \
     echo "aws_access_key_id=${AWS_ACCESS_KEY_ID}" >> ~/.aws/credentials && \
     echo "aws_secret_access_key=${AWS_SECRET_ACCESS_KEY}" >> ~/.aws/credentials
 
-RUN echo "AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}"
-RUN echo "AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}"
-
 # S3에서 설치 파일 다운로드
-RUN aws s3 cp s3://s3cepcdbucket/google-chrome.deb /tmp/google-chrome.deb
-RUN aws s3 cp s3://s3cepcdbucket/chromedriver-linux64.zip /tmp/chromedriver-linux64.zip
+RUN aws s3 cp s3://s3cepcdbucket/google-chrome.deb /tmp/google-chrome.deb && \
+    aws s3 cp s3://s3cepcdbucket/chromedriver-linux64.zip /tmp/chromedriver-linux64.zip
 
 # Chrome 설치
-RUN dpkg -i /tmp/google-chrome.deb || apt-get install -y -f
+RUN dpkg -i /tmp/google-chrome.deb || apt-get install -y -f && \
+    rm /tmp/google-chrome.deb
 
 # chromedriver 설치
 RUN unzip /tmp/chromedriver-linux64.zip -d /usr/local/bin/ && \
-    chmod +x /usr/local/bin/chromedriver-linux64/chromedriver
+    chmod +x /usr/local/bin/chromedriver-linux64/chromedriver && \
+    rm /tmp/chromedriver-linux64.zip
 
 # chromedriver의 경로를 PATH에 추가
 ENV PATH="/usr/local/bin/chromedriver-linux64:${PATH}"
@@ -55,10 +54,13 @@ RUN google-chrome --version
 RUN chromedriver --version
 
 # 기본 작업 디렉토리 설정 (필요에 따라 설정 가능)
-WORKDIR /app
+WORKDIR /scheduler
 
 # 빌드 단계에서 생성된 JAR 파일 복사
-COPY build/libs/*.jar app.jar
+COPY build/libs/*.jar scheduler.jar
+
+# 설치 후 정리 (캐시와 임시 파일 삭제)
+RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "app.jar"]
+ENTRYPOINT ["java", "-jar", "scheduler.jar"]
