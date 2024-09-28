@@ -54,13 +54,13 @@ RUN google-chrome --version
 RUN chromedriver --version
 
 # 기본 작업 디렉토리 설정 (필요에 따라 설정 가능)
-WORKDIR /scheduler
+WORKDIR /app
 
 # 빌드 단계에서 생성된 JAR 파일 복사
-COPY build/libs/*.jar scheduler.jar
+COPY build/libs/*.jar app.jar
 
 # 설치 후 정리 (캐시와 임시 파일 삭제)
 RUN apt-get clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
 
 # 애플리케이션 실행
-ENTRYPOINT ["java", "-jar", "scheduler.jar"]
+ENTRYPOINT ["java", "-jar", "app.jar"]
