@@ -73,9 +73,8 @@ jobs:
       # (7) EC2에 SSH로 연결하여 Docker Compose실행
       - name: Deploy to EC2 using Docker Compose
         run: |
-          ssh -i ~/.ssh/ec2_key.pem -p 2200 ec2-user@52.79.209.72 << 'EOF'
+          ssh -i ~/.ssh/ec2_key.pem -p 2200 -o StrictHostKeyChecking=no -t ec2-user@52.79.209.72 << 'EOF'
             echo "Deploying with Docker Compose..."
-      
             cd ~
             sudo docker-compose down
             sudo docker-compose pull
