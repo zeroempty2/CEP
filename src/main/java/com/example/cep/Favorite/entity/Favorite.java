@@ -32,14 +32,26 @@ public class Favorite extends TimeStamped {
   private String eventClassification;
 
   @Column
+  private String dumName;
+
+  @Column
+  private String dumImg;
+
+  @Column
+  private String productHash;
+
+  @Column
   private Long userId;
 
   @Builder
-  public Favorite(String productName,String productImg,ConvenienceClassification convenienceClassification,String eventClassification,Long userId) {
+  public Favorite(String productName,String productImg,ConvenienceClassification convenienceClassification,String eventClassification,String dumName, String dumImg, String productHash, Long userId) {
     this.productName = productName;
     this.productImg = productImg;
     this.convenienceClassification = convenienceClassification;
     this.eventClassification = eventClassification;
+    this.dumName = dumName;
+    this.dumImg = dumImg;
+    this.productHash = productHash;
     this.userId = userId;
   }
 
