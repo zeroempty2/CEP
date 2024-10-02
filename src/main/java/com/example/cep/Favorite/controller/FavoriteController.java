@@ -51,10 +51,28 @@ public class FavoriteController {
     return ResponseEntity.ok().headers(headers).body(favorites);
   }
 
-  @PostMapping("/check")
-  public ResponseEntity<Page<FavoriteCheckResponseDto>> getCheckingFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,
+  //상품 분류에 따른 조회
+  @PostMapping("/all")
+  public ResponseEntity<Page<FavoriteCheckResponseDto>> getAllFavorite(@AuthenticationPrincipal UserDetailsImpl userDetails,
       PageDto pageDto, @RequestBody FavoriteSearchRequestDto favoriteSearchRequestDto) {
-    Page<FavoriteCheckResponseDto> favorites = favoriteService.getCheckingFavorite(userDetails.getUserId(),pageDto,favoriteSearchRequestDto);
+    Page<FavoriteCheckResponseDto> favorites = favoriteService.getAllFavorite(userDetails.getUserId(),pageDto,favoriteSearchRequestDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(favorites);
+  }
+  @PostMapping("/during")
+  public ResponseEntity<Page<FavoriteCheckResponseDto>> getFavoriteEventDuring(@AuthenticationPrincipal UserDetailsImpl userDetails,
+      PageDto pageDto, @RequestBody FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    Page<FavoriteCheckResponseDto> favorites = favoriteService.getDuringFavorite(userDetails.getUserId(),pageDto,favoriteSearchRequestDto);
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
+    return ResponseEntity.ok().headers(headers).body(favorites);
+  }
+
+  @PostMapping("/end")
+  public ResponseEntity<Page<FavoriteCheckResponseDto>> getFavoriteEventEnd(@AuthenticationPrincipal UserDetailsImpl userDetails,
+      PageDto pageDto, @RequestBody FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    Page<FavoriteCheckResponseDto> favorites = favoriteService.getEndFavorite(userDetails.getUserId(),pageDto,favoriteSearchRequestDto);
     HttpHeaders headers = new HttpHeaders();
     headers.setContentType(new MediaType("application", "json", StandardCharsets.UTF_8));
     return ResponseEntity.ok().headers(headers).body(favorites);

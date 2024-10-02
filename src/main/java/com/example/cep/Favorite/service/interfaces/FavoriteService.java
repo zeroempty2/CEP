@@ -19,6 +19,10 @@ public interface FavoriteService {
   Favorite findFavoriteById(Long favoriteId);
   Favorite findFavoriteByProductName(String productName,Long userId);
   StatusResponseDto requestFavorite(FavoriteRequestDto requestDto, Long userId);
-  Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto,
+  Page<FavoriteCheckResponseDto> getAllFavorite(Long userId, PageDto pageDto,
+      FavoriteSearchRequestDto favoriteSearchRequestDto);
+  Page<FavoriteCheckResponseDto> getDuringFavorite(Long userId, PageDto pageDto,
+      FavoriteSearchRequestDto favoriteSearchRequestDto);
+  Page<FavoriteCheckResponseDto> getEndFavorite(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto);
 }

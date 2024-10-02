@@ -25,13 +25,29 @@ public class FavoriteServiceImpl implements FavoriteService {
   @Override
   @Transactional
   public StatusResponseDto addFavorite(FavoriteRequestDto requestDto, Long userId) {
-    Favorite favorite = Favorite.builder()
-        .userId(userId)
-        .productName(requestDto.productName())
-        .convenienceClassification(requestDto.convenienceClassification())
-        .eventClassification(requestDto.eventClassification())
-        .productImg(requestDto.productImg())
-        .build();
+    Favorite favorite;
+    if(requestDto.eventClassification().equals("덤증정")){
+       favorite = Favorite.builder()
+          .userId(userId)
+          .productName(requestDto.productName())
+          .convenienceClassification(requestDto.convenienceClassification())
+          .eventClassification(requestDto.eventClassification())
+          .productImg(requestDto.productImg())
+          .productHash(requestDto.productHash())
+          .dumImg(requestDto.dumImg())
+          .dumName(requestDto.dumName())
+          .build();
+    }
+     else {
+      favorite = Favorite.builder()
+          .userId(userId)
+          .productName(requestDto.productName())
+          .convenienceClassification(requestDto.convenienceClassification())
+          .eventClassification(requestDto.eventClassification())
+          .productImg(requestDto.productImg())
+          .productHash(requestDto.productHash())
+          .build();
+    }
     favoriteRepository.save(favorite);
     return new StatusResponseDto(201,"Created");
   }
@@ -87,9 +103,23 @@ public class FavoriteServiceImpl implements FavoriteService {
 
   @Override
   @Transactional
-  public Page<FavoriteCheckResponseDto> getCheckingFavorite(Long userId, PageDto pageDto,
+  public Page<FavoriteCheckResponseDto> getAllFavorite(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto) {
     return favoriteRepository.getFavoritesAndCheck(userId,pageDto,favoriteSearchRequestDto);
+  }
+
+  @Override
+  @Transactional
+  public Page<FavoriteCheckResponseDto> getDuringFavorite(Long userId, PageDto pageDto,
+      FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    return favoriteRepository.getFavoritesDuringEvent(userId,pageDto,favoriteSearchRequestDto);
+  }
+
+  @Override
+  @Transactional
+  public Page<FavoriteCheckResponseDto> getEndFavorite(Long userId, PageDto pageDto,
+      FavoriteSearchRequestDto favoriteSearchRequestDto) {
+    return favoriteRepository.getFavoritesEventEnd(userId,pageDto,favoriteSearchRequestDto);
   }
 
 
