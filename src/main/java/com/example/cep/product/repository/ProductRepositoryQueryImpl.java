@@ -53,6 +53,7 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
+                ,product.productHash
             )
         )
         .from(product)
@@ -91,6 +92,7 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
+                ,product.productHash
             )
         )
         .from(product)
@@ -133,6 +135,7 @@ public class ProductRepositoryQueryImpl implements ProductRepositoryQuery {
                 ,product.dumName
                 ,product.eventClassification
                 ,product.convenienceClassification
+                ,product.productHash
             )
         )
         .from(product)

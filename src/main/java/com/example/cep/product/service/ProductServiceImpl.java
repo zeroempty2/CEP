@@ -58,6 +58,11 @@ public class ProductServiceImpl implements ProductService {
   }
 
   @Override
+  public List<Product> findByProductHashIn(List<String> productHashes) {
+    return productRepository.findByProductHashIn(productHashes);
+  }
+
+  @Override
   @Transactional
   public void deleteAllByConvenienceClassification(
       ConvenienceClassification convenienceClassification) {

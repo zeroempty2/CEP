@@ -16,6 +16,7 @@ public interface ProductService {
   Page<ProductResponseDto> getEmartProducts(PageDto pageDto);
   List<Product> findByProductNameInAndEventClassificationInAndConvenienceClassificationIn(List<String> productNames, List<String> eventClassifications,
       List<ConvenienceClassification> convenienceClassifications);
+  List<Product> findByProductHashIn(List<String> productHashes);
   void deleteAllByConvenienceClassification(ConvenienceClassification convenienceClassification);
   void deleteAllProduct();
 }

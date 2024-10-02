@@ -19,4 +19,5 @@ public class ProductResponseDto {
   private String dumName;
   private String eventClassification;
   private ConvenienceClassification convenienceClassification;
+  private String productHash;
 }
