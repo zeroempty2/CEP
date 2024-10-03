@@ -17,6 +17,7 @@ import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -134,88 +135,83 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
   @Transactional
   public Page<FavoriteCheckResponseDto> getFavoritesDuringEvent(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto) {
-      Pageable pageable = pageDto.toPageable();
-      int currentPage = favoriteSearchRequestDto.currentPage();
+    Pageable pageable = pageDto.toPageable();
+    int currentPage = favoriteSearchRequestDto.currentPage();
+    int pageSize = pageDto.getSize();
 
-      BooleanBuilder builder = new BooleanBuilder();
-      builder.and(favorite.userId.eq(userId));
+    BooleanBuilder builder = new BooleanBuilder();
+    builder.and(favorite.userId.eq(userId));
 
-      if (favoriteSearchRequestDto.keyword() != null) {
-        builder.and(favorite.productName.containsIgnoreCase(favoriteSearchRequestDto.keyword()));
-      }
-
-      if (favoriteSearchRequestDto.convenienceClassifications() != null && !favoriteSearchRequestDto.convenienceClassifications().isEmpty()) {
-        builder.and(favorite.convenienceClassification.in(favoriteSearchRequestDto.convenienceClassifications()));
-      }
-
-      if (favoriteSearchRequestDto.eventClassifications() != null && !favoriteSearchRequestDto.eventClassifications().isEmpty()) {
-        builder.and(favorite.eventClassification.in(favoriteSearchRequestDto.eventClassifications()));
-      }
-
-    List<FavoriteResponseDto> filteredFavorites = new ArrayList<>();
-    List<Product> matchingProducts = new ArrayList<>(); // 매칭된 Product 리스트
-    int batchSize = 24;
-    int offset = 0;
-
-// 필요한 개수만큼 데이터를 가져올 때까지 반복
-    while (filteredFavorites.size() < batchSize) {
-      // 24개씩 데이터를 가져옴
-      List<FavoriteResponseDto> batch = jpaQueryFactory
-          .select(
-              Projections.bean(
-                  FavoriteResponseDto.class,
-                  favorite.id.as("favoriteId"),
-                  favorite.productName,
-                  favorite.productImg,
-                  favorite.convenienceClassification,
-                  favorite.eventClassification,
-                  favorite.productHash,
-                  favorite.dumName,
-                  favorite.dumImg
-              )
-          )
-          .from(favorite)
-          .where(builder)
-          .orderBy(favorite.id.desc())
-          .limit(batchSize)
-          .offset(offset)
-          .fetch();
-
-      if (batch.isEmpty()) {
-        // 더 이상 가져올 데이터가 없으면 중단
-        break;
-      }
-
-      // 후처리 작업 (필터링 등)
-      List<String> productHashes = batch.stream()
-          .map(FavoriteResponseDto::getProductHash)
-          .collect(Collectors.toList());
-
-      List<Product> products = productService.findByProductHashIn(productHashes);
-
-      Set<String> existingProductHashes = products.stream()
-          .map(Product::getProductHash)
-          .collect(Collectors.toSet());
-
-      // 매칭된 Product 리스트에 추가
-      matchingProducts.addAll(products);
-
-      // 후처리된 데이터만 필터링
-      List<FavoriteResponseDto> currentFiltered = batch.stream()
-          .filter(fav -> existingProductHashes.contains(fav.getProductHash()))
-          .collect(Collectors.toList());
-
-      // 필터링된 데이터를 추가
-      filteredFavorites.addAll(currentFiltered);
-
-      // offset을 증가시켜 다음 데이터를 가져오도록 설정
-      offset += batchSize;
+    if (favoriteSearchRequestDto.keyword() != null) {
+      builder.and(favorite.productName.containsIgnoreCase(favoriteSearchRequestDto.keyword()));
     }
 
-// 필터링된 데이터를 FavoriteCheckResponseDto로 변환
-    List<FavoriteCheckResponseDto> favoriteCheckList = filteredFavorites.stream()
+    if (favoriteSearchRequestDto.convenienceClassifications() != null && !favoriteSearchRequestDto.convenienceClassifications().isEmpty()) {
+      builder.and(favorite.convenienceClassification.in(favoriteSearchRequestDto.convenienceClassifications()));
+    }
+
+    if (favoriteSearchRequestDto.eventClassifications() != null && !favoriteSearchRequestDto.eventClassifications().isEmpty()) {
+      builder.and(favorite.eventClassification.in(favoriteSearchRequestDto.eventClassifications()));
+    }
+
+    // favorite 테이블에서 일괄적으로 데이터 가져오기 (batchSize 없이 전부 가져옴)
+    List<FavoriteResponseDto> allFavorites = jpaQueryFactory
+        .select(
+            Projections.bean(
+                FavoriteResponseDto.class,
+                favorite.id.as("favoriteId"),
+                favorite.productName,
+                favorite.productImg,
+                favorite.convenienceClassification,
+                favorite.eventClassification,
+                favorite.productHash,
+                favorite.dumName,
+                favorite.dumImg
+            )
+        )
+        .from(favorite)
+        .where(builder)
+        .fetch();
+
+    if (allFavorites.isEmpty()) {
+      // 데이터가 없으면 빈 페이지 반환
+      return new PageImpl<>(Collections.emptyList(), pageable, 0);
+    }
+
+    // 가져온 모든 favorite 데이터에서 ProductHash추출
+    List<String> productHashes = allFavorites.stream()
+        .map(FavoriteResponseDto::getProductHash)
+        .collect(Collectors.toList());
+
+    // 추출한 ProductHash를 이용해 product탐색(판매중인 product탐색)
+    List<Product> products = productService.findByProductHashIn(productHashes);
+
+    //판매중인 product의 produchHash 추출
+    Set<String> existingProductHashes = products.stream()
+        .map(Product::getProductHash)
+        .collect(Collectors.toSet());
+
+    // 판매중인 product의 productHash를 가지고 있는 favorite만 필터링
+    List<FavoriteResponseDto> filteredFavorites = allFavorites.stream()
+        .filter(fav -> existingProductHashes.contains(fav.getProductHash()))
+        .collect(Collectors.toList());
+
+    // 페이징 인덱스 설정
+    int startIndex = (currentPage - 1) * pageSize;
+    int endIndex = Math.min(startIndex + pageSize, filteredFavorites.size());
+
+    if (startIndex >= filteredFavorites.size()) {
+      // 시작 인덱스가 전체 리스트 크기보다 크면 빈 리스트 반환
+      return new PageImpl<>(Collections.emptyList(), pageable, 0);
+    }
+
+    // 필요한 데이터만 추출
+    List<FavoriteResponseDto> pagedFavorites = filteredFavorites.subList(startIndex, endIndex);
+
+    // Product 정보를 사용해 FavoriteCheckResponseDto로 변환
+    List<FavoriteCheckResponseDto> favoriteCheckList = pagedFavorites.stream()
         .map(fav -> {
-          Product matchingProduct = matchingProducts.stream()
+          Product matchingProduct = products.stream()
               .filter(product -> product.getProductHash().equals(fav.getProductHash()))
               .findFirst()
               .orElse(null);
@@ -234,22 +230,19 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
         })
         .collect(Collectors.toList());
 
-      // 페이징 처리
-      int start = (int) pageable.getOffset();
-      int end = Math.min((start + pageable.getPageSize()), favoriteCheckList.size());
-      List<FavoriteCheckResponseDto> pagedFavorites = favoriteCheckList.subList(start, end);
+    // 전체 크기 계산
+    long totalSize = filteredFavorites.size();
 
-      long totalSize = ((long)currentPage * 4L) + (long)favoriteCheckList.size();
-
-      return new PageImpl<>(pagedFavorites, pageable, totalSize);
-    }
-
+    return new PageImpl<>(favoriteCheckList, pageable, totalSize);
+  }
+  
   @Override
   @Transactional
   public Page<FavoriteCheckResponseDto> getFavoritesEventEnd(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto) {
     Pageable pageable = pageDto.toPageable();
     int currentPage = favoriteSearchRequestDto.currentPage();
+    int pageSize = pageDto.getSize();
 
     BooleanBuilder builder = new BooleanBuilder();
     builder.and(favorite.userId.eq(userId));
@@ -258,107 +251,87 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
       builder.and(favorite.productName.containsIgnoreCase(favoriteSearchRequestDto.keyword()));
     }
 
-    if (favoriteSearchRequestDto.convenienceClassifications() != null
-        && !favoriteSearchRequestDto.convenienceClassifications().isEmpty()) {
-      builder.and(favorite.convenienceClassification.in(
-          favoriteSearchRequestDto.convenienceClassifications()));
+    if (favoriteSearchRequestDto.convenienceClassifications() != null && !favoriteSearchRequestDto.convenienceClassifications().isEmpty()) {
+      builder.and(favorite.convenienceClassification.in(favoriteSearchRequestDto.convenienceClassifications()));
     }
 
-    if (favoriteSearchRequestDto.eventClassifications() != null
-        && !favoriteSearchRequestDto.eventClassifications().isEmpty()) {
+    if (favoriteSearchRequestDto.eventClassifications() != null && !favoriteSearchRequestDto.eventClassifications().isEmpty()) {
       builder.and(favorite.eventClassification.in(favoriteSearchRequestDto.eventClassifications()));
     }
 
-    List<FavoriteResponseDto> filteredFavorites = new ArrayList<>();
-    List<Product> matchingProducts = new ArrayList<>(); // 매칭된 Product 리스트
-    int batchSize = 24;
-    int offset = 0;
+    // favorite 테이블에서 일괄적으로 데이터 가져오기 (batchSize 없이 전부 가져옴)
+    List<FavoriteResponseDto> allFavorites = jpaQueryFactory
+        .select(
+            Projections.bean(
+                FavoriteResponseDto.class,
+                favorite.id.as("favoriteId"),
+                favorite.productName,
+                favorite.productImg,
+                favorite.convenienceClassification,
+                favorite.eventClassification,
+                favorite.productHash,
+                favorite.dumName,
+                favorite.dumImg
+            )
+        )
+        .from(favorite)
+        .where(builder)
+        .fetch();
 
-// 필요한 개수만큼 데이터를 가져올 때까지 반복
-    while (filteredFavorites.size() < batchSize) {
-      // 24개씩 데이터를 가져옴
-      List<FavoriteResponseDto> batch = jpaQueryFactory
-          .select(
-              Projections.bean(
-                  FavoriteResponseDto.class,
-                  favorite.id.as("favoriteId"),
-                  favorite.productName,
-                  favorite.productImg,
-                  favorite.convenienceClassification,
-                  favorite.eventClassification,
-                  favorite.productHash,
-                  favorite.dumName,
-                  favorite.dumImg
-              )
-          )
-          .from(favorite)
-          .where(builder)
-          .orderBy(favorite.id.desc())
-          .limit(batchSize)
-          .offset(offset)
-          .fetch();
-
-      if (batch.isEmpty()) {
-        // 더 이상 가져올 데이터가 없으면 중단
-        break;
-      }
-
-      // 후처리 작업 (필터링 등)
-      List<String> productHashes = batch.stream()
-          .map(FavoriteResponseDto::getProductHash)
-          .collect(Collectors.toList());
-
-      List<Product> products = productService.findByProductHashIn(productHashes);
-
-      Set<String> existingProductHashes = products.stream()
-          .map(Product::getProductHash)
-          .collect(Collectors.toSet());
-
-      // 매칭된 Product 리스트에 추가
-      matchingProducts.addAll(products);
-
-      // 후처리된 데이터만 필터링
-      List<FavoriteResponseDto> currentFiltered = batch.stream()
-          .filter(fav -> !existingProductHashes.contains(fav.getProductHash()))
-          .collect(Collectors.toList());
-
-      // 필터링된 데이터를 추가
-      filteredFavorites.addAll(currentFiltered);
-
-      // offset을 증가시켜 다음 데이터를 가져오도록 설정
-      offset += batchSize;
+    if (allFavorites.isEmpty()) {
+      // 데이터가 없으면 빈 페이지 반환
+      return new PageImpl<>(Collections.emptyList(), pageable, 0);
     }
 
-// 필터링된 데이터를 FavoriteCheckResponseDto로 변환
-    List<FavoriteCheckResponseDto> favoriteCheckList = filteredFavorites.stream()
-        .map(fav -> {
-          Product matchingProduct = matchingProducts.stream()
-              .filter(product -> product.getProductHash().equals(fav.getProductHash()))
-              .findFirst()
-              .orElse(null);
-
-          return new FavoriteCheckResponseDto(
-              fav.getFavoriteId(),
-              fav.getProductName(),
-              fav.getProductImg(),
-              "가격정보 없음",
-              fav.getDumName() != null ? fav.getDumName() : "",
-              fav.getDumImg() != null ? fav.getDumImg() : "",
-              fav.getConvenienceClassification(),
-              fav.getEventClassification(),
-              false
-          );
-        })
+    // 가져온 모든 favorite 데이터에서 ProductHash추출
+    List<String> productHashes = allFavorites.stream()
+        .map(FavoriteResponseDto::getProductHash)
         .collect(Collectors.toList());
 
-    // 페이징 처리
-    int start = (int) pageable.getOffset();
-    int end = Math.min((start + pageable.getPageSize()), favoriteCheckList.size());
-    List<FavoriteCheckResponseDto> pagedFavorites = favoriteCheckList.subList(start, end);
+    // 추출한 ProductHash를 이용해 product탐색(판매중인 product탐색)
+    List<Product> products = productService.findByProductHashIn(productHashes);
 
-    long totalSize = ((long)currentPage * 4L) + (long)favoriteCheckList.size();
+    //판매중인 product의 produchHash 추출
+    Set<String> existingProductHashes = products.stream()
+        .map(Product::getProductHash)
+        .collect(Collectors.toSet());
 
-    return new PageImpl<>(pagedFavorites, pageable, totalSize);
+    // 판매중인 product의 productHash를 가지고 있지 않은 favorite만 필터링
+    List<FavoriteResponseDto> filteredFavorites = allFavorites.stream()
+        .filter(fav -> !existingProductHashes.contains(fav.getProductHash()))
+        .collect(Collectors.toList());
+
+    // 페이징 인덱스 설정
+    int startIndex = (currentPage - 1) * pageSize;
+    int endIndex = Math.min(startIndex + pageSize, filteredFavorites.size());
+
+    if (startIndex >= filteredFavorites.size()) {
+      // 시작 인덱스가 전체 리스트 크기보다 크면 빈 리스트 반환
+      return new PageImpl<>(Collections.emptyList(), pageable, 0);
+    }
+
+    // 필요한 데이터만 추출
+    List<FavoriteResponseDto> pagedFavorites = filteredFavorites.subList(startIndex, endIndex);
+
+    //pagedFavorites를 후처리
+    List<FavoriteCheckResponseDto> favoriteCheckList =  pagedFavorites.stream()
+        .map(fav -> new FavoriteCheckResponseDto(
+            fav.getFavoriteId(),
+            fav.getProductName(),
+            fav.getProductImg(),
+            "가격정보 없음", // productPrice
+            fav.getDumName() != null ? fav.getDumName() : "", // dumName
+            fav.getDumImg() != null ? fav.getDumImg() : "",   // dumImg
+            fav.getConvenienceClassification(),
+            fav.getEventClassification(),
+            false // isSale
+        ))
+        .collect(Collectors.toList());
+
+    // 전체 크기 계산
+    long totalSize = filteredFavorites.size();
+
+    return new PageImpl<>(favoriteCheckList, pageable, totalSize);
   }
 //  @Override
 //  @Transactional
