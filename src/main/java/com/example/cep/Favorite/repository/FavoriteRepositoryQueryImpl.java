@@ -239,7 +239,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
       int end = Math.min((start + pageable.getPageSize()), favoriteCheckList.size());
       List<FavoriteCheckResponseDto> pagedFavorites = favoriteCheckList.subList(start, end);
 
-      long totalSize = (currentPage - 1) + (favoriteCheckList.size()/4);
+      long totalSize = ((long)currentPage * 4L) + (long)favoriteCheckList.size();
 
       return new PageImpl<>(pagedFavorites, pageable, totalSize);
     }
@@ -356,7 +356,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
     int end = Math.min((start + pageable.getPageSize()), favoriteCheckList.size());
     List<FavoriteCheckResponseDto> pagedFavorites = favoriteCheckList.subList(start, end);
 
-    long totalSize = (currentPage - 1) + (favoriteCheckList.size() / 4);
+    long totalSize = ((long)currentPage * 4L) + (long)favoriteCheckList.size();
 
     return new PageImpl<>(pagedFavorites, pageable, totalSize);
   }
