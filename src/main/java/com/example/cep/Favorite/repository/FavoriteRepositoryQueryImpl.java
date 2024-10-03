@@ -266,7 +266,7 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
         .collect(Collectors.toSet());
 
     List<FavoriteResponseDto> filteredFavorites = favorites.stream()
-        .filter(fav -> existingProductHashes.contains(fav.getProductHash()))
+        .filter(fav -> !existingProductHashes.contains(fav.getProductHash()))
         .collect(Collectors.toList());
 
     List<FavoriteCheckResponseDto> favoriteCheckList =  filteredFavorites.stream()
