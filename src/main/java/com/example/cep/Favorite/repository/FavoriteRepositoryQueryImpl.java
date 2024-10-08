@@ -18,6 +18,7 @@ import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -175,7 +176,15 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
     favoriteCheckList.forEach(dto -> dto.setIsSale(true));
 
     // 전체 크기 계산
-    long totalSize = favoriteCheckList.size();
+    long totalSize = Optional.ofNullable(
+        jpaQueryFactory
+            .select(favorite.count())
+            .from(favorite)
+            .leftJoin(product).on(favorite.productHash.eq(product.productHash))
+            .where(builder)
+            .fetchOne()
+    ).orElse(0L);
+
 
     return new PageImpl<>(favoriteCheckList, pageable, totalSize);
   }
@@ -220,9 +229,6 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
         .from(favorite)
         .leftJoin(product).on(product.productHash.eq(favorite.productHash)) // 일치하는 productHash 조건으로 조인
         .where(builder)
-        .orderBy(favorite.id.desc())
-        .limit(pageable.getPageSize())
-        .offset(pageable.getOffset())
         .fetch();
 
     // product가 없는 favorite 필터링 (leftJoin에서 product가 없으면 null이므로 이를 기반으로 필터링)
