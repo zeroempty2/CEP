@@ -16,10 +16,8 @@ import com.querydsl.core.types.Projections;
 import com.querydsl.core.types.dsl.Wildcard;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -136,8 +134,6 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
   public Page<FavoriteCheckResponseDto> getFavoritesDuringEvent(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto) {
     Pageable pageable = pageDto.toPageable();
-    int currentPage = favoriteSearchRequestDto.currentPage();
-    int pageSize = pageDto.getSize();
 
     BooleanBuilder builder = new BooleanBuilder();
     builder.and(favorite.userId.eq(userId));
@@ -154,84 +150,32 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
       builder.and(favorite.eventClassification.in(favoriteSearchRequestDto.eventClassifications()));
     }
 
-    // favorite 테이블에서 일괄적으로 데이터 가져오기 (batchSize 없이 전부 가져옴)
-    List<FavoriteResponseDto> allFavorites = jpaQueryFactory
+    List<FavoriteCheckResponseDto> favoriteCheckList = jpaQueryFactory
         .select(
             Projections.bean(
-                FavoriteResponseDto.class,
+                FavoriteCheckResponseDto.class,
                 favorite.id.as("favoriteId"),
                 favorite.productName,
                 favorite.productImg,
-                favorite.convenienceClassification,
-                favorite.eventClassification,
-                favorite.productHash,
+                product.productPrice,
                 favorite.dumName,
-                favorite.dumImg
+                favorite.dumImg,
+                favorite.convenienceClassification,
+                favorite.eventClassification
             )
         )
         .from(favorite)
+        .leftJoin(product).on(favorite.productHash.eq(product.productHash))
         .where(builder)
+        .orderBy(favorite.id.desc())
+        .limit(pageable.getPageSize())
+        .offset(pageable.getOffset())
         .fetch();
 
-    if (allFavorites.isEmpty()) {
-      // 데이터가 없으면 빈 페이지 반환
-      return new PageImpl<>(Collections.emptyList(), pageable, 0);
-    }
-
-    // 가져온 모든 favorite 데이터에서 ProductHash추출
-    List<String> productHashes = allFavorites.stream()
-        .map(FavoriteResponseDto::getProductHash)
-        .collect(Collectors.toList());
-
-    // 추출한 ProductHash를 이용해 product탐색(판매중인 product탐색)
-    List<Product> products = productService.findByProductHashIn(productHashes);
-
-    //판매중인 product의 produchHash 추출
-    Set<String> existingProductHashes = products.stream()
-        .map(Product::getProductHash)
-        .collect(Collectors.toSet());
-
-    // 판매중인 product의 productHash를 가지고 있는 favorite만 필터링
-    List<FavoriteResponseDto> filteredFavorites = allFavorites.stream()
-        .filter(fav -> existingProductHashes.contains(fav.getProductHash()))
-        .collect(Collectors.toList());
-
-    // 페이징 인덱스 설정
-    int startIndex = (currentPage - 1) * pageSize;
-    int endIndex = Math.min(startIndex + pageSize, filteredFavorites.size());
-
-    if (startIndex >= filteredFavorites.size()) {
-      // 시작 인덱스가 전체 리스트 크기보다 크면 빈 리스트 반환
-      return new PageImpl<>(Collections.emptyList(), pageable, 0);
-    }
-
-    // 필요한 데이터만 추출
-    List<FavoriteResponseDto> pagedFavorites = filteredFavorites.subList(startIndex, endIndex);
-
-    // Product 정보를 사용해 FavoriteCheckResponseDto로 변환
-    List<FavoriteCheckResponseDto> favoriteCheckList = pagedFavorites.stream()
-        .map(fav -> {
-          Product matchingProduct = products.stream()
-              .filter(product -> product.getProductHash().equals(fav.getProductHash()))
-              .findFirst()
-              .orElse(null);
-
-          return new FavoriteCheckResponseDto(
-              fav.getFavoriteId(),
-              fav.getProductName(),
-              fav.getProductImg(),
-              matchingProduct != null ? matchingProduct.getProductPrice() : "가격정보 없음",
-              fav.getDumName() != null ? fav.getDumName() : "",
-              fav.getDumImg() != null ? fav.getDumImg() : "",
-              fav.getConvenienceClassification(),
-              fav.getEventClassification(),
-              true
-          );
-        })
-        .collect(Collectors.toList());
+    favoriteCheckList.forEach(dto -> dto.setIsSale(true));
 
     // 전체 크기 계산
-    long totalSize = filteredFavorites.size();
+    long totalSize = favoriteCheckList.size();
 
     return new PageImpl<>(favoriteCheckList, pageable, totalSize);
   }
@@ -241,7 +185,6 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
   public Page<FavoriteCheckResponseDto> getFavoritesEventEnd(Long userId, PageDto pageDto,
       FavoriteSearchRequestDto favoriteSearchRequestDto) {
     Pageable pageable = pageDto.toPageable();
-    int currentPage = favoriteSearchRequestDto.currentPage();
     int pageSize = pageDto.getSize();
 
     BooleanBuilder builder = new BooleanBuilder();
@@ -259,79 +202,59 @@ public class FavoriteRepositoryQueryImpl implements FavoriteRepositoryQuery {
       builder.and(favorite.eventClassification.in(favoriteSearchRequestDto.eventClassifications()));
     }
 
-    // favorite 테이블에서 일괄적으로 데이터 가져오기 (batchSize 없이 전부 가져옴)
-    List<FavoriteResponseDto> allFavorites = jpaQueryFactory
+    // Favorite 데이터를 우선 조회
+    List<FavoriteCheckResponseDto> favoriteCheckList = jpaQueryFactory
         .select(
             Projections.bean(
-                FavoriteResponseDto.class,
+                FavoriteCheckResponseDto.class,
                 favorite.id.as("favoriteId"),
                 favorite.productName,
                 favorite.productImg,
-                favorite.convenienceClassification,
-                favorite.eventClassification,
-                favorite.productHash,
+                product.productPrice,
                 favorite.dumName,
-                favorite.dumImg
+                favorite.dumImg,
+                favorite.convenienceClassification,
+                favorite.eventClassification
             )
         )
         .from(favorite)
+        .leftJoin(product).on(product.productHash.eq(favorite.productHash)) // 일치하는 productHash 조건으로 조인
         .where(builder)
+        .orderBy(favorite.id.desc())
+        .limit(pageable.getPageSize())
+        .offset(pageable.getOffset())
         .fetch();
 
-    if (allFavorites.isEmpty()) {
-      // 데이터가 없으면 빈 페이지 반환
-      return new PageImpl<>(Collections.emptyList(), pageable, 0);
-    }
-
-    // 가져온 모든 favorite 데이터에서 ProductHash추출
-    List<String> productHashes = allFavorites.stream()
-        .map(FavoriteResponseDto::getProductHash)
-        .collect(Collectors.toList());
-
-    // 추출한 ProductHash를 이용해 product탐색(판매중인 product탐색)
-    List<Product> products = productService.findByProductHashIn(productHashes);
-
-    //판매중인 product의 produchHash 추출
-    Set<String> existingProductHashes = products.stream()
-        .map(Product::getProductHash)
-        .collect(Collectors.toSet());
-
-    // 판매중인 product의 productHash를 가지고 있지 않은 favorite만 필터링
-    List<FavoriteResponseDto> filteredFavorites = allFavorites.stream()
-        .filter(fav -> !existingProductHashes.contains(fav.getProductHash()))
-        .collect(Collectors.toList());
+    // product가 없는 favorite 필터링 (leftJoin에서 product가 없으면 null이므로 이를 기반으로 필터링)
+    favoriteCheckList = favoriteCheckList.stream()
+        .filter(dto -> dto.getProductPrice() == null) // product가 조인되지 않은 경우만 필터링
+        .toList();
 
     // 페이징 인덱스 설정
-    int startIndex = (currentPage - 1) * pageSize;
-    int endIndex = Math.min(startIndex + pageSize, filteredFavorites.size());
+    int startIndex;
 
-    if (startIndex >= filteredFavorites.size()) {
+    if(pageDto.getPage() == 0){
+      startIndex = 0;
+    }else{
+      startIndex = (pageDto.getPage() - 1) * pageSize;
+    }
+
+    int endIndex = Math.min(startIndex + pageSize, favoriteCheckList.size());
+
+    if (startIndex >= favoriteCheckList.size()) {
       // 시작 인덱스가 전체 리스트 크기보다 크면 빈 리스트 반환
       return new PageImpl<>(Collections.emptyList(), pageable, 0);
     }
 
     // 필요한 데이터만 추출
-    List<FavoriteResponseDto> pagedFavorites = filteredFavorites.subList(startIndex, endIndex);
+    List<FavoriteCheckResponseDto> pagedFavorites = favoriteCheckList.subList(startIndex, endIndex);
 
-    //pagedFavorites를 후처리
-    List<FavoriteCheckResponseDto> favoriteCheckList =  pagedFavorites.stream()
-        .map(fav -> new FavoriteCheckResponseDto(
-            fav.getFavoriteId(),
-            fav.getProductName(),
-            fav.getProductImg(),
-            "가격정보 없음", // productPrice
-            fav.getDumName() != null ? fav.getDumName() : "", // dumName
-            fav.getDumImg() != null ? fav.getDumImg() : "",   // dumImg
-            fav.getConvenienceClassification(),
-            fav.getEventClassification(),
-            false // isSale
-        ))
-        .collect(Collectors.toList());
+    pagedFavorites.forEach(dto -> dto.setIsSale(false));
 
     // 전체 크기 계산
-    long totalSize = filteredFavorites.size();
+    long totalSize = favoriteCheckList.size();
 
-    return new PageImpl<>(favoriteCheckList, pageable, totalSize);
+    return new PageImpl<>(pagedFavorites, pageable, totalSize);
   }
 //  @Override
 //  @Transactional
