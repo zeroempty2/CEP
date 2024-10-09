@@ -6,24 +6,16 @@
 <br>
 
 ---
-프로젝트 배포 Url 
+- **프로젝트 배포 Url** : https://eventprod.store
+<br>
 
-https://eventprod.store/
+- **프론트엔드 Github** : https://github.com/zeroempty2/CEPF
+<br>
 
+- **백엔드 GitHub** :  https://github.com/zeroempty2/CEP
+<br>
 
-프론트엔드 Github
-
-https://github.com/zeroempty2/CEPF
-
-백엔드 GitHub
-
- https://github.com/zeroempty2/CEP
-
-
- api 명세
- 
- https://docs.google.com/spreadsheets/d/1dO67-8X0fWnsUL8AAtTOKoPh1EhYiT8FYMDhoy7MQqY/edit?gid=0#gid=0
-
+- **api 명세** :  https://docs.google.com/spreadsheets/d/1dO67-8X0fWnsUL8AAtTOKoPh1EhYiT8FYMDhoy7MQqY/edit?gid=0#gid=0
  <br>
  
  ---
