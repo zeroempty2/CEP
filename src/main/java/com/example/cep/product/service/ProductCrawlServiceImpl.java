@@ -39,7 +39,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   private final ProductRepository productRepository;
 
   @Override
-  @Transactional
   public StatusResponseDto crawlCuProducts() {
 
     String url = "https://cu.bgfretail.com/event/plus.do";
@@ -113,7 +112,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   }
 
   @Override
-  @Transactional
   public StatusResponseDto crawlGsProducts() {
     String url = "http://gs25.gsretail.com/gscvs/ko/products/event-goods";
 
@@ -186,7 +184,6 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
   }
 
   @Override
-  @Transactional
   public StatusResponseDto crawlEmartProducts() {
     String url = "https://www.emart24.co.kr/goods/event";
 
@@ -206,7 +203,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
     System.setProperty("webdriver.chrome.driver", location);
 
     WebDriver driver = new ChromeDriver(options);
-
+    int page = 0;
     try {
       driver.get(url);
 
@@ -214,6 +211,7 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
       driver.manage().timeouts().pageLoadTimeout(Duration.ofSeconds(180));
 
       List<Product> products = new ArrayList<>();
+      LocalDateTime start = LocalDateTime.now();
 
       while (true) {
         try {
@@ -226,21 +224,26 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
           WebElement nextPageLink = wait.until(ExpectedConditions.elementToBeClickable(By.xpath("/html/body/div[2]/div/div/div[2]/div[1]/img")));
           ((JavascriptExecutor) driver).executeScript("arguments[0].click();", nextPageLink);
 
-          Thread.sleep(8000);
+          Thread.sleep(5000);
+
+
 
           String newPageSource = driver.getPageSource();
           if (currentPageSource.equals(newPageSource)) break;
 
+          page++;
         } catch (Exception e) {
           break;
         }
       }
 
+      System.out.println("emart24 : "  + "totalPage: " + page +  "  startTime: " + start + "  finishTime: " + LocalDateTime.now());
+
       Document document = Jsoup.parse(driver.getPageSource());
       List<Product> productList = parsingEmartElements(document);
       products.addAll(productList);
 
-      int batchSize = 100; // 배치 크기 설정
+      int batchSize = 250; // 배치 크기 설정
       saveProductsInBatches(products, batchSize);
     }
     catch (Exception e) {
@@ -253,8 +256,8 @@ public class ProductCrawlServiceImpl implements ProductCrawlService {
 
     return new StatusResponseDto(200, "success");
   }
-
-  private void saveProductsInBatches(List<Product> products, int batchSize) {
+  @Transactional
+  protected void saveProductsInBatches(List<Product> products, int batchSize) {
     for (int i = 0; i < products.size(); i += batchSize) {
       int end = Math.min(i + batchSize, products.size());
       List<Product> batch = products.subList(i, end);
