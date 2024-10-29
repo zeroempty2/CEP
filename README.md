@@ -9,6 +9,9 @@
 - **프로젝트 배포 Url** : https://eventprod.store
 <br>
 
+- **프로젝트 소개 Url** : https://eventprod.store/about-site
+<br>
+
 - **프론트엔드 Github** : https://github.com/zeroempty2/CEPF
 <br>
 
