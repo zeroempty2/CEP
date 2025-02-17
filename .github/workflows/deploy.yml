@@ -7,7 +7,6 @@ on:
       - completed  # CI 워크플로우 완료 시 트리거
     branches:
       - main    # main 브랜치에서만 트리거
-  # workflow_dispatch: 
 
 env:
   AWS_REGION: ap-northeast-2
